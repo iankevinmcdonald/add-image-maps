@@ -1,6 +1,6 @@
 <?php
 
-namespace wordpress-imagemaps;
+namespace wp_imgmaps;
 
 use ImgMaps;
 use ImgMaps_Map;
@@ -25,7 +25,7 @@ class ImgMaps_Map_Test extends PHPUnit_Framework_TestCase {
 
 	public function test_map_as_HTML() {
 		// Fails with wrong number of co-ords
-		$this->assertRexExp( '/<map >.+<\/map>'    ,$map->get_HTML );
+		$this->assertRexExp( '/<map >.+<\/map>' , $map->get_HTML );
 	}
 
 	
