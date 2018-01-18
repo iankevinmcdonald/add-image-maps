@@ -19,10 +19,10 @@
  * For more information, see the following discussion:
  * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
  *
- * @link       http://mcdonald.me.uk/
+ * @link       mcdonald.me.uk
  * @since      1.0.0
  *
- * @package    Wp_Imgmaps
+ * @package    Add_Img_Maps
  */
 
 // If uninstall not called from WordPress, then exit.
