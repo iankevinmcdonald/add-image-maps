@@ -1,22 +1,36 @@
 <?php
 
-// from https://engineering.hmn.md/guides/writing-code/writing-tests/
+// Based on https://engineering.hmn.md/guides/writing-code/writing-tests/
+// and https://codesymphony.co/writing-wordpress-plugin-unit-tests/
 
-namespace wordpress-imagemaps;
+namespace Add_Img_Maps\Tests;
 
-// Get tests directory from environment.
-$_tests_dir = getenv( 'WP_TESTS_DIR' );
+// Get tests directory from environment, but provide a default if needed.
+// For the sake of consistency, remove a trailing white slash
+$_tests_dir = rtrim( getenv( 'WP_TESTS_DIR' ), '/' );
+
+if ( ! $_tests_dir ) {
+	$_tests_dir = '/home/ian/wordpress-dev/trunk/tests/phpunit';
+}
 
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
 /**
  * Manually load the plugin being tested.
+ * Assumes in current environment
  */
 function manually_load_plugin() {
-	require dirname( __DIR__ ) . '/plugin.php';
+	/* Changed from '_pluginName_/plugins.php' to '_pluginName_/_pluginName_.php' - 
+	 * which means this isn't generalisable */
+	require dirname( __DIR__ ) . '/add-img-maps.php';
 }
 tests_add_filter( 'muplugins_loaded', __NAMESPACE__ . '\\manually_load_plugin' );
 
-// Start up the WP testing environment.
+/**
+ * Sets up the WordPress test environment.
+ *
+ * We've got our action set up, so we can load this now,
+ * and viola, the tests begin.
+ */
 require $_tests_dir . '/includes/bootstrap.php';
