@@ -1,21 +1,22 @@
 === Plugin Name ===
 Contributors: drianmcdonald
 Donate link: http://mcdonald.me.uk/
-Tags: comments, spam
+Tags: display, images, links, imagemaps
 Requires at least: 3.0.1
 Tested up to: 4.9.2
 Stable tag: 4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Wordpress Plugin to implement HTML (initially) Image Maps for any image, including headers
+Wordpress Plugin to implement HTML Image Maps for any image, including headers
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Allow parts of images to be linkable by implementing HTML Image Maps.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+Editors can set the dimensions of linkable areas on the image editor page. 
+
+== README HELP ==
 
 A few notes about the sections above:
 
@@ -39,13 +40,10 @@ you put the stable version, in order to eliminate any doubt.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
 1. Upload `wp-imgmaps.php` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+1. Edit your chosen image, and add an image map
+1. Place the image on your page - and it should be clickable
 
 == Frequently Asked Questions ==
 
@@ -57,7 +55,7 @@ An answer to that question.
 
 Answer to foo bar dilemma.
 
-== Screenshots ==
+== Screenshots TODO ==
 
 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
 the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
@@ -77,18 +75,26 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 == Upgrade Notice ==
 
 = 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
 
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
+- WHY USERS SHOULD UPGRADE -
 
-== Arbitrary section ==
+= DEVELOPMENT =
 
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+These versions are not released anyway.
 
-== A brief Markdown Example ==
+== Interaction with responsive images ==
+
+HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. As far as I can tell, this is a problem with the image maps themselves, and not soluble with this plugin.
+
+Wordpress 4.4 onwards includes srcset and sizes attributes. By default, Add Image Maps turns this off for images with maps added.
+
+== Feature Wantlist ==
+
+An alternative impelementation of displaying Image Maps (perhaps in CSS & JavaScript) that plays well with Responsive Images.
+
+A way to turn it off when the site is being viewed on a device with a smaller screen.
+
+== DELETEABLE brief Markdown Example ==
 
 Ordered list:
 
