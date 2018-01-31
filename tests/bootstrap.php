@@ -11,6 +11,7 @@ $_tests_dir = rtrim( getenv( 'WP_TESTS_DIR' ), '/' );
 
 if ( ! $_tests_dir ) {
 	$_tests_dir = '/home/ian/wordpress-dev/trunk/tests/phpunit';
+//	$_tests_dir = '/usr/share/wordpress/wp-content/plugins/add-img-maps/tests';
 }
 
 // Give access to tests_add_filter() function.
