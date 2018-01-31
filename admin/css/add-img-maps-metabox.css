@@ -1,0 +1,62 @@
+
+/**
+ * Class names (like PHP) uses the prefix 'add_img_maps'
+ */
+ 
+/**
+ * The Canvas will be positioned over the main image by the Javascript.
+ * Thus CSS does half the job by giving it absolute position & no pad/border/margin.
+ */
+  
+ canvas#addimgmaps-canvas.add_img_maps-canvas {
+	position: absolute;
+	max-width: 100%;
+	z-index: 10;
+	padding: 0px;
+	border: 0px;
+	margin: 0px;
+	display: inherit;
+}
+
+/*
+ * The fieldsets that represent maps start off hidden.
+ */
+
+.add_img_maps-editmap  {
+	display: none;
+	white-space: normal;
+}
+
+.add_img_maps-editmap a.button-secondary {
+	white-space: normal;
+}
+
+/*
+ * A test when this didn't load.
+ */
+
+div#addimgmaps-test-213155 {
+	border: red 2px !important;
+	font-size: large;
+	background-color: yellow;
+	font: 'Garamond';
+}
+
+/*
+ * The metadata area class structure is:
+ * 
+ * div.addimgmaps-area 
+ * 	 > div.poly-coords
+ */
+ 
+div.addimgmaps-area {
+	padding-top: 2em;
+}
+
+.addimgmaps-area input[type=text], input[type=url] {
+	width: 100%;
+}
+
+.addimgmaps-area input[type=number] {
+	width: 4.2em;
+}
