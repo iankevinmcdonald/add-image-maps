@@ -1,4 +1,4 @@
-var addImgMapsClosure = function($) {
+﻿var addImgMapsClosure = function($) {
 	'use strict';
 	
 	var pluginName = "addimgmaps";
@@ -174,11 +174,11 @@ var addImgMapsClosure = function($) {
 		// Again, this assertion needs to change to be something other than form. TODO
 		console.assert( mapForImageSize.tagName == "FIELDSET", mapForImageSize);
 
-		// And the remove Map button - part of initMap
+		// And the remove Map button
 		var rmMapButton = $('<A/>', {
 			'id': pluginName + "-" + imageSize + "-rm",
-			'class': 'button-secondary',
-			'text' : 'Delete whole map',
+			'class': 'button-secondary addimgmaps-rm dashicons-before dashicons-trash',
+			'text' : ' Delete whole map',
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -190,11 +190,11 @@ var addImgMapsClosure = function($) {
 			}
 				
 		);
-
+		
 		var closeMapButton = $('<A/>', {
 			'id': pluginName + "-" + imageSize + "-close",
-			'class': 'button-secondary',
-			'text' : 'Stop editing',
+			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-admin-collapse',
+			'text' : ' Stop editing',
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -218,8 +218,8 @@ var addImgMapsClosure = function($) {
 
 		var cancelMapButton = $('<A/>', {
 			'id': pluginName + "-" + imageSize + "-close",
-			'class': 'button-secondary',
-			'text' : 'Cancel',
+			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-undo',
+			'text' : ' Cancel',
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -253,8 +253,8 @@ var addImgMapsClosure = function($) {
 		// CF: Create Map ID is "#addimgmaps-cr" with a value of the imageSize
 		var createAreaButton = $("<A/>", {
 			'id': pluginName + "-" + imageSize + "-cr",
-			'class': 'button-secondary',
-			'text' : 'Add new area',
+			'class': 'button-secondary addimgmaps-area-cr dashicons-before dashicons-plus-alt',
+			'text' : ' Add new area',
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -327,7 +327,7 @@ var addImgMapsClosure = function($) {
 		);
 
 		var deleteButton = document.createElement("a");
-		deleteButton.className="button-secondary"; // WP Admin CSS class, shows it as button
+		deleteButton.className="button-secondary addimgmaps-area-rm dashicons-before dashicons-dismiss"; // WP Admin CSS class, shows it as button
 		deleteButton.title="Delete area";
 		deleteButton.text="Delete area";
 		deleteButton.addEventListener("click", function() {
@@ -353,9 +353,9 @@ var addImgMapsClosure = function($) {
 			// Poly also needs to add a button for extra co-ordinates.
 			case "poly":
 				var addCoordButton = document.createElement("a");
-				addCoordButton.className="button-secondary"; 
+				addCoordButton.className="button-secondary addimgmaps-addcoord dashicons-before dashicons-plus"; 
 				addCoordButton.title="+ co-ord pair";
-				addCoordButton.text="+ co-ord pair";
+				addCoordButton.text=" co-ord pair";
 				addCoordButton.addEventListener("click", function() {
 					addCoordPairForPoly( newArea );
 					drawImageMap( metaBoxForImageSize );
@@ -407,19 +407,19 @@ var addImgMapsClosure = function($) {
 		var shape = document.createElement("select");
 		
 		var option = document.createElement("option");
-		option.text="Rectangle []";
+		option.text="□ Rectangle";
 		option.value="rect";
 		option.name= areaId + "-shape";
 		shape.add(option);
 				
 		option = document.createElement("option");
-		option.text="Circle O";
+		option.text="○ Circle";
 		option.value="circle";
 		option.name=areaId + "-shape";
 		shape.add(option);
 		
 		option = document.createElement("option");
-		option.text="Polygon";
+		option.text="☆ Polygon";
 		option.value="poly";
 		option.name=areaId + "-shape";
 		shape.add(option);
@@ -465,34 +465,49 @@ var addImgMapsClosure = function($) {
 		// createNumberInput - -x1 -y1 x2 y2
 		var coordsDiv = document.createElement( "div" );
 		coordsDiv.id = areaDiv.id + "-co";
-		coordsDiv.appendChild ( 
+		var span1 = document.createElement( "span" );
+		span1.className='addimgmaps-coord-pair';
+		
+		span1.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-x1", 
 				getAttachmentWidth() * 0.25,
-				getAttachmentWidth() - 1
+				getAttachmentWidth() - 1,
+				'→'
 			)
 		);
-		coordsDiv.appendChild ( 
+		span1.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-y1", 
 				getAttachmentHeight() * 0.25,
-				getAttachmentHeight() - 1
+				getAttachmentHeight() - 1,
+				'↓'
 			)
 		);
-		coordsDiv.appendChild ( 
+		
+		var span2 = document.createElement( "span" );
+		span2.className='addimgmaps-coord-pair';
+		
+		span2.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-x2", 
 				getAttachmentWidth() * 0.75,
-				getAttachmentWidth() - 1
+				getAttachmentWidth() - 1,
+				'→'
 			)
 		);
-		coordsDiv.appendChild ( 
+		span2.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-y2", 
 				getAttachmentHeight() * 0.75,
-				getAttachmentHeight() - 1
+				getAttachmentHeight() - 1,
+				'↓'
 			)
 		);
+		
+		coordsDiv.appendChild( span1);
+		coordsDiv.appendChild( document.createTextNode(' ') );
+		coordsDiv.appendChild( span2);
 		return coordsDiv;
 	}
 	
@@ -512,14 +527,16 @@ var addImgMapsClosure = function($) {
 			createNumberInput(
 				areaDiv.id + "-x", 
 				getAttachmentWidth() * 0.5,
-				getAttachmentWidth() - 1
+				getAttachmentWidth() - 1,
+				'→'
 			)
 		);
 		coordsDiv.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-y", 
 				getAttachmentHeight() * 0.5,
-				getAttachmentHeight() -1
+				getAttachmentHeight() -1,
+				'↓'
 			)
 		);
 		coordsDiv.appendChild ( 
@@ -527,7 +544,8 @@ var addImgMapsClosure = function($) {
 				areaDiv.id + "-r", 
 				(getAttachmentHeight()+getAttachmentWidth())/7,
 				/* At this maximum, the circle could eclipse the whole area */
-				(getAttachmentHeight()+getAttachmentWidth())/2
+				(getAttachmentHeight()+getAttachmentWidth())/2,
+				'𝑟'
 			)
 		);
 		return coordsDiv;		
@@ -575,7 +593,7 @@ var addImgMapsClosure = function($) {
 		);
 		
 		// Make sure the delete buttons start off hidden
-		$(areaDiv).find(".delete-coords").hide();
+		$(areaDiv).find(".addimgmaps-delete-coords").hide();
 		
 		return true;
 	
@@ -595,17 +613,17 @@ var addImgMapsClosure = function($) {
 		var coordsDiv = document.createElement( "div" );
 		coordsDiv.id = idStem;
 		coordsDiv.appendChild ( 
-			createNumberInput( idStem + "-x", x, getAttachmentWidth() )
+			createNumberInput( idStem + "-x", x, getAttachmentWidth(), '→' )
 		);
 		coordsDiv.appendChild ( 
-			createNumberInput( idStem + "-y", y, getAttachmentHeight() )
+			createNumberInput( idStem + "-y", y, getAttachmentHeight(), '↓' )
 		);
 		coordsDiv.className="poly-coords";
 		
 		var deleteCoords = document.createElement( "a" );
-		deleteCoords.className="button-secondary delete-coords"; 
+		deleteCoords.className="button-secondary addimgmaps-delete-coords dashicons-before dashicons-no-alt"; 
 		deleteCoords.title="Delete co-ordinates";
-		deleteCoords.text="[ x ]";
+		deleteCoords.text=" "; /* The dashicon does enough. */
 		deleteCoords.addEventListener("click", function() {
 		/*
 		 * Deletes the co-ordinate pair & makes follow-on changes (closure).
@@ -618,7 +636,7 @@ var addImgMapsClosure = function($) {
 			var jQ_areaDiv = $(coordsDiv).closest("div." + pluginName + "-area");
 			var jQ_numCoords = jQ_areaDiv.find(".poly-coords").length;
 			if (jQ_numCoords <= 4) { // If we are about to hit the minimum co-ord pairs
-				jQ_areaDiv.find(".delete-coords").hide();
+				jQ_areaDiv.find(".addimgmaps-delete-coords").hide();
 			}
 			var areaDiv = jQ_areaDiv.get(0);
 			areaDiv.removeChild( coordsDiv );
@@ -663,7 +681,7 @@ var addImgMapsClosure = function($) {
 		// Make sure all the delete buttons are visible
 		// (In theory, I could set this to only happen if jQ_coords.lenght==3, because that's
 		//  the only time it should be needed, but a little robustness won't hurt.)
-		$(areaDiv).find(".delete-coords").show();
+		$(areaDiv).find(".addimgmaps-delete-coords").show();
 		
 		return areaDiv;
 	}
@@ -708,7 +726,9 @@ var addImgMapsClosure = function($) {
  *
  * @returns {DOMObject} DOM element of the new numerical input box
  */ 
-	function createNumberInput( numberId, defaultValue, max ) {
+	function createNumberInput( numberId, defaultValue, max, labelText ) {
+		var label = document.createElement('label');
+		label.textContent = labelText;
 		var numberInput = document.createElement("input");
 		numberInput.type="number";
 		numberInput.name=numberId;
@@ -719,7 +739,9 @@ var addImgMapsClosure = function($) {
 			numberInput.max=max;
 		}
 		numberInput.value = Math.round( defaultValue );
-		return numberInput;
+//		return numberInput;
+		label.appendChild(numberInput);
+		return label;
 	}	
  
  

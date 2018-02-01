@@ -138,7 +138,7 @@ class Add_Img_Maps_Metabox
 			
 			case 1: // just one
 			?>
-			<a href="#" class="button-secondary" id="addimgmaps-cr" 
+			<a href="#" class="button-secondary dashicons-before dashicons-screenoptions" id="addimgmaps-cr" 
 			data-imagesize="<?php echo $sizesWithoutImageMaps[0]; ?>"  >
 <?php 
 			printf(

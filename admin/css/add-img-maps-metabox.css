@@ -18,6 +18,12 @@
 	display: inherit;
 }
 
+/* Don't put line breaks within co-ordinate pairs */
+
+span.addimgmaps-coord-pair {
+	white-space: nowrap;
+}
+
 /*
  * The fieldsets that represent maps start off hidden.
  */
@@ -27,7 +33,11 @@
 	white-space: normal;
 }
 
+/* Let them wrap*/
 .add_img_maps-editmap a.button-secondary {
+	padding-top: 0.1em;
+	margin-top: 0.1em;
+	margin-bottom: 0.2em;
 	white-space: normal;
 }
 
@@ -50,7 +60,7 @@ div#addimgmaps-test-213155 {
  */
  
 div.addimgmaps-area {
-	padding-top: 2em;
+	padding-top: 1em;
 }
 
 .addimgmaps-area input[type=text], input[type=url] {
@@ -60,3 +70,37 @@ div.addimgmaps-area {
 .addimgmaps-area input[type=number] {
 	width: 4.2em;
 }
+
+.addimgmaps-area label {
+	font-size: large;
+}
+
+/* 
+ * Adding Dashicons to Image edit buttons
+ */
+
+/*
+ * Abandoned in favour of using HTML classes.
+ *
+ 
+#addimgmaps-cr:before {
+	content: "\f180";
+    /* Create new map */
+/*}
+
+
+
+.addimgmaps-addcoord {
+}
+
+.addimgmaps-delete-coords {
+} 
+
+.addimgmaps-rm { /*Remove map*
+
+}
+
+.addimgmaps-close { /* close current editing window * }
+
+.addimgmaps-area-cr { /* create an area * }
+*/
