@@ -27,7 +27,7 @@ class Add_Img_Maps_Map {
 	protected $areas = array ();
 	
 	/**
-	 * new Add_Img_Maps_Map ( 'rect|circle|poly', array( *co-ordinates*), 'Alt text' ... )
+	 * new Add_Img_Maps_Map ( 'rect|circle|poly', array( *co-ordinates*), 'Alt text', link ... )
      * return - an image map object or false
 	 */
 	 
@@ -36,7 +36,7 @@ class Add_Img_Maps_Map {
 		/* Number of arguments should be even */
 		$args = func_get_args();
 		$num_args = count($args);
-		if ( $num_args == 0 or ( $num_args % 3) != 0) {
+		if ( $num_args == 0 or ( $num_args % 4) != 0) {
 			throw new Exception('Tried to create new image map with arguments not in threes');
 		};
 				
@@ -63,10 +63,13 @@ class Add_Img_Maps_Map {
 			/* Final part is the Alt text. Pre-escaped */
 			$alt = sanitize_text_field( array_shift($args));
 			
+			$href = esc_url(array_shift($args));
+			
 			array_push( $this->areas, array(
 				'shape' => $shape,
 				'coords' => $coords,
-				'alt' => $alt
+				'alt' => $alt,
+				'href' => $href,
 				)
 			);
 		}

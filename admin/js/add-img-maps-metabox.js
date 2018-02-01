@@ -2,7 +2,7 @@
 	'use strict';
 	
 	var pluginName = "addimgmaps";
-	const HANDLE_SIZES = false; // Needs to be in root file?
+	HANDLE_SIZES = false; // Needs to be in root file? Not used at present.
 	var size_dimensions = { };
 
 	/**
@@ -191,6 +191,7 @@
 				
 		);
 		
+		// NOT CURRENTLY INCLUDED
 		var closeMapButton = $('<A/>', {
 			'id': pluginName + "-" + imageSize + "-close",
 			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-admin-collapse',
