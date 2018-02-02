@@ -2,7 +2,7 @@
 	'use strict';
 	
 	var pluginName = "addimgmaps";
-	HANDLE_SIZES = false; // Needs to be in root file? Not used at present.
+	var HANDLE_SIZES = false; // Needs to be in root file? Not used at present.
 	var size_dimensions = { };
 
 	/**
@@ -373,6 +373,7 @@
 		var newField = document.createElement("input");
 		newField.type="url";
 		newField.className="regular-text";
+		newField.name= newAreaId + '-href';
 		newField.maxlength=128;
 		newField.size=32;
 		newField.placeholder="Please enter the web link that the clickable area links to.";
@@ -383,6 +384,7 @@
 		/* Do the alt text field */
 		newField = document.createElement("input");
 		newField.type="text";
+		newField.name= newAreaId + '-alt';
 		newField.className="regular-text";
 		newField.maxlength=128;
 		newField.size=32;
@@ -427,6 +429,7 @@
 		
 		// shape.selectedIndex = 0;
 		shape.value = shapeValue;
+		shape.name = areaId + '-shape';
 		shape.className = pluginName + "-shape";
 		
 		shape.addEventListener("change", function(  ) {
@@ -463,7 +466,7 @@
 	 */
 	
 	function createCoordForRect( areaDiv ) {
-		// createNumberInput - -x1 -y1 x2 y2
+		// createNumberInput - -0-x -0-y -1-x -1-y
 		var coordsDiv = document.createElement( "div" );
 		coordsDiv.id = areaDiv.id + "-co";
 		var span1 = document.createElement( "span" );
@@ -471,7 +474,7 @@
 		
 		span1.appendChild ( 
 			createNumberInput(
-				areaDiv.id + "-x1", 
+				areaDiv.id + "-0-x", 
 				getAttachmentWidth() * 0.25,
 				getAttachmentWidth() - 1,
 				'→'
@@ -479,7 +482,7 @@
 		);
 		span1.appendChild ( 
 			createNumberInput(
-				areaDiv.id + "-y1", 
+				areaDiv.id + "-0-y", 
 				getAttachmentHeight() * 0.25,
 				getAttachmentHeight() - 1,
 				'↓'
@@ -491,7 +494,7 @@
 		
 		span2.appendChild ( 
 			createNumberInput(
-				areaDiv.id + "-x2", 
+				areaDiv.id + "-1-x", 
 				getAttachmentWidth() * 0.75,
 				getAttachmentWidth() - 1,
 				'→'
@@ -499,7 +502,7 @@
 		);
 		span2.appendChild ( 
 			createNumberInput(
-				areaDiv.id + "-y2", 
+				areaDiv.id + "-1-y", 
 				getAttachmentHeight() * 0.75,
 				getAttachmentHeight() - 1,
 				'↓'

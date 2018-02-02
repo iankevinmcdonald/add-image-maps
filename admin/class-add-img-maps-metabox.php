@@ -21,22 +21,135 @@ class Add_Img_Maps_Metabox
 		);
     }
  
+	 /**
+	 * Save the image maps when an attachment post is saved. On the pre_post_update hook
+	 *
+	 * @param int $post_id The post ID.
+	 */
+ 
+ 
     public static function save($post_id)
     {
+		error_log('Called SAVE');
+		$post = get_post($post_id);
+		
+		// If this is not an image, return
+		if ( strncasecmp( $post->post_mime_type, 'image', 5) ) {
+			error_log('Mime type is ' . $post->post_mime_type );
+			return null;
+		}
+		
 		/**
 		 * To save this function from looking up the full set of images sizes,
-		 * I pass it a flag field within the form
+		 * I pass it a flag field within the form [oops]
 		 */
-        if (array_key_exists('add_img_maps-TODO', $_POST)) {
+		
+		//error_log( print_r( $_POST, true ) );
+		
+        if ( true ) { // array_key_exists('add_img_maps-TODO', $_POST)
+			$input = array();
+			foreach ( $_POST as $field => $val ) {
+				/* if the key belongs to this plugin */
+				if ( ! strncmp( $field, 'addimgmaps', 10) ) {
+					/* Field names are hierarchical - addimgmaps->size->0->shape */
+					$subkeys = explode('-', $field );
+					// Ignore the first element, 'addimgmaps'
+					switch ( count($subkeys) ) {
+						case 2:
+						$input[ $subkeys[1] ] = $val;
+						break;
+						
+						case 3:
+						$input[ $subkeys[1] ][ $subkeys[2] ] = $val;
+						break;
+						
+						case 4:
+						$input[ $subkeys[1] ][ $subkeys[2] ][ $subkeys[3] ] = $val;
+						break;
+						
+						case 5:
+						$input[ $subkeys[1] ][ $subkeys[2] ][ $subkeys[3] ][ $subkeys[4] ] = $val;
+						break;
+						
+						default:
+						error_log( "Unrecognised plugin key $field.");
+					}
+				}
+			}
+
+			/* INPUT now has the form
+			 * 
+			 * $input[$size][$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
+			 *
+			 * MAP Class constructor expects
+			 * 
+			 * [ areas=>[ [ shape=>$shape, alt=>$alt, href=>$href, coords=>[ ] ]... ]
+			 */
+			
+			/* Are there any changes? */
+			
+			/* No addimgmaps input at all */
+			if ( 0 == count($input) ) {
+				return;
+			}
+
+			/* Have we been passed any 'input' values without the 'unchanged' flag? */
+			if ( 0 == count(
+				array_filter( $input, function($map) {
+					/* If the 'unchanged' flag is either absent or false */
+					return (! isset($map['unchanged']) or
+					! $map['unchanged']);
+				})
+			)) {
+				error_log('No changes in add_img_maps');
+				return;
+			}
+			
+			error_log( 'Parsed $input:' );
+			error_log( print_r( $input, true ) );
+			
 			/* will have to understand the $_POST array, and go through the functions */
-			$add_img_maps_metadata = get_post_meta( $post_id, '_add_img_maps', true);
-			// TODO create 
-			$meta_for_size = array();
+			$maps_metadata = get_post_meta( $post_id, '_add_img_maps', true);
+			
+			error_log('post metadata:');
+			error_log( print_r( $maps_metadata, true ) );
+			
+			if ( ! $maps_metadata ) {
+				$maps_metadata = array ();
+			}
+			
+			foreach ( $maps_metadata as $size => $map ) {
+				/* Deleted */
+				if ( isset($input[$size]['rm']) and $input[$size]['rm'] ) {
+					unset ( $maps_metadata[$size] );
+				/* Unchanged */
+				} elseif ( isset($input['size']['unchanged']) and $input[$size]['unchanged']) {
+					; /*do nothing */
+				/* Else the input defines the new map */
+				} else {
+					$maps_metadata = new Add_Img_Maps_Map( $input[$size] );
+					// Unset the input, so to keep track of what's changed.
+				}
+			}
+
+			$new_maps = array_diff_key( $input, $maps_metadata);
+
+			error_log( print_r( $new_maps, true ) );
+			
+			/* New maps are in $input but not maps_metadata */
+			foreach( $new_maps  as $size => $map ) {
+				$maps_metadata[$size] = new Add_Img_Maps_Map( $input[$size] );
+			}
+				
+			/* And update the metadata */ 
+			error_log( print_r( $maps_metadata, true ) );
+			
             update_post_meta(
                 $post_id,
                 '_add_img_maps',
-                $meta_for_size
+                $maps_metadata
             );
+			
         }
     }
  
@@ -87,41 +200,50 @@ class Add_Img_Maps_Metabox
 		 * Suggest a hidden field - "~-<size>=untouched"
 		 * (JS TODO - position canvas over div#wp_attachment_image > img)
 		 */
-
+		 
 		 if ( $imagemaps ) { 
+
+		 // Early iterations stored just one image_map in the array.
+			if ( $imagemaps instanceof Add_Img_Maps_Map ) {
+				$new_imagemaps = array( 'full' => $imagemaps );
+				$imagemaps = $new_imagemaps;
+			}
+
 			foreach ($imagemaps as $image_size => $map) {
 		/* TODO 
 		 *	create image size pulldown
 		 * 	initialise the HANDLE_SIZES 'add map' button */	
 			?>
-				<div id="addimgmaps-"<?php echo $image_size; ?>">
+				<div id="addimgmaps-<?php echo $image_size; ?>">
 				<a href="#" class="button-secondary" id="addimgmaps-<?php echo $image_size; ?>-ed">
 				<?php			
 				if (ADDIMGMAPS_HANDLE_SIZES) {
 					printf(
-						_e('Open image map for size %s.', 'add-img-maps'),
+						__('Open image map for size %s.', 'add-img-maps'),
 						$image_size
 						);
-			
-					?>
-					<input type="hidden" 
-						name="addimgmaps-<?php echo $image_size; ?>-unchanged" 
-						id="addimgmaps-<?php echo $image_size; ?>-unchanged" value="1">
-					<?php
+
 				} else {
-					
+					_e('Open image map for editing.', 'add-img-maps');
 					// Do something to trigger the autoloading of the imagemap TODO
 				}
-				?></a></div>
+				?></a>
+				<input type="hidden" 
+					name="addimgmaps-<?php echo $image_size; ?>-unchanged" 
+					id="addimgmaps-<?php echo $image_size; ?>-unchanged" value="1">				
+				</div>
 <?php		} // close foreach Image
 			
-			$sizesWithoutImageMaps = array_filter( 
-				$all_sizes, 
-				function( $size) {
+//			error_log( '$imagemaps=' . print_r( $imagemaps, true) );
+			
+			$sizesWithoutImageMaps = array_diff ( 
+				$all_sizes, array_keys($imagemaps) );
+/*				function( $size) {
+					error_log( '$imagemaps in closure=' . print_r( $imagemaps, true) );
 					return ! array_key_exists( $size , $imagemaps );
 				}
 			);
-		
+*/		
 		} else { // if no image maps
 			// $imagemaps = array(); // Commented out because we don't actually use the empty $imagemaps.
 			$sizesWithoutImageMaps = $all_sizes;			
@@ -130,8 +252,8 @@ class Add_Img_Maps_Metabox
 <?php	}
 
 		// Add new map pulldown:
-/*		?><pre><?php var_dump("All_sizes", $all_sizes, "Sizes without Image Maps", $sizesWithoutImageMaps); ?></pre><?php
- */		
+		?><pre><?php var_dump("All_sizes", $all_sizes, "Sizes without Image Maps", $sizesWithoutImageMaps); ?></pre><?php
+		
 		switch (count($sizesWithoutImageMaps)) {
 			case 0: // no sizes witout image maps, so nothing to mention
 			break;
@@ -159,12 +281,15 @@ class Add_Img_Maps_Metabox
 			}
 ?>			</select>
 <?php	} // end Switch
-		//End the ctrl element & start fieldSets
+		//End the ctrl element & start fieldSets - which involves looping over the maps all over again
 ?>		</div><div>
 <?php	foreach ( $all_sizes as $size ) {
 	?>		<fieldset id="addimgmaps-<?php echo $size ?>" class="add_img_maps-editmap"
 <?php			if ( $imagemaps && $imagemaps[$size] ) {
-	?>				data-map="<? echo JSON-TODO; ?>">
+					if ( ! $imagemaps[$size] instanceof Add_Img_Maps_Map ) { // We're assuming this is a map object
+						throw new Exception ('Expected map object, got ' . print_r( $imagemaps[$size] , true) );
+					}
+	?>				data-map='<? echo json_encode( $imagemaps[$size]->as_array() ); ?>'>
 			<input name="addimgmaps-<?php echo $size; ?>-unchanged" id="addimgmaps-<?php echo $size; ?>-unchanged"
 					type="hidden" value="1">
 <?php			} else {

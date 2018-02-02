@@ -25,56 +25,163 @@ class Add_Img_Maps_Map {
 	 *
 	 */
 	protected $areas = array ();
+	protected $COORD_KEYS = array( 'x', 'y', 'r' ); // PHP<5.7 rejects array constants
+	protected $VALID_SHAPES = array( "rect", "circle", "poly" );
 	
 	/**
 	 * new Add_Img_Maps_Map ( 'rect|circle|poly', array( *co-ordinates*), 'Alt text', link ... )
      * return - an image map object or false
 	 */
+
+	/* Or it takes an associative array made from input vars.
+	 * 
+	 * $arg1[$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
+	 */
 	 
 	public function __construct () {
 		
-		/* Number of arguments should be even */
+		/* Number of arguments should be even, or it takes a hashed object */
 		$args = func_get_args();
 		$num_args = count($args);
-		if ( $num_args == 0 or ( $num_args % 4) != 0) {
-			throw new Exception('Tried to create new image map with arguments not in threes');
-		};
-				
-		while ( count($args) ) {
-			/* The first part of each pair is the area type */
-			$shape = array_shift($args);
-			// This should be automated - no need to play nice.
-			// $shape = strtolower($shape);
-			if ($shape != 'rect' && $shape != 'circle' && $shape != 'poly') {
-				throw new Exception("Tried to create new image map with unrecognised shape $shape");
-			}
-			
-			/* Second part is the co-ordinates */
-			$coords = array_shift($args);
-			if (
-				'rect' == $shape && count($coords) != 4 or
-				'circle' == $shape && count($coords) != 3 or
-				'poly' == $shape && (count($coords) %2) != 0 or
-				'poly' == $shape && (count($coords) < 6)
-			) {
-				throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
-			}
-			
-			/* Final part is the Alt text. Pre-escaped */
-			$alt = sanitize_text_field( array_shift($args));
-			
-			$href = esc_url(array_shift($args));
-			
-			array_push( $this->areas, array(
-				'shape' => $shape,
-				'coords' => $coords,
-				'alt' => $alt,
-				'href' => $href,
-				)
-			);
-		}
 		
-		return $this;
+		if ( $num_args == 1 and is_array( $args[0]  ) ) {
+			// If it's an authentic object array, just set it.
+			
+			if ( array_key_exists( 'areas' , $args[0] )  /*and array_key_exists( 'shape', $args[0]['areas'][0] ) */ ) {
+				if ( ! array_key_exists(  'shape', $args[0]['areas'][0] ) ) {
+					throw new Exception ( 'Cannot detect "shape" key in first map: ' . print_r($args[0], true) );
+				}
+				$this->areas = $args[0]['areas'];
+				return $this;
+	//			An associative array of form input vars, of form:
+	// [size][$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
+	 
+			} elseif (
+				array_key_exists( 0, array_values($args[0] ) ) 
+		// and	array_key_exists( 'shape', array_shift(array_values($args[0] ) ) ) 
+				) {
+				// Let's reshape into an object array by rearranging the coords.
+				
+				$areasList = array();
+				
+				// This might renumber the areas, but that's not desparately important
+				foreach( $args[0] as $inputArea ) {
+				
+					error_log('$inputArea=' . print_r($inputArea, true));
+					
+					// Get all the co-ordinates (and typecast them to int, as a defence)					
+					$coords = array();
+					// Keys are x, y, and r in order.
+					foreach ( $this->COORD_KEYS as $key ) {
+						if (isset($inputArea[$key]) ) {
+							array_push( $coords, (integer) $inputArea[$key] );
+						}
+					}
+					// For every numbered member in order
+					
+					$pairs = array_filter( 
+									array_keys( $inputArea ), 'is_numeric' );
+					
+					if ( gettype( $pairs ) != 'array' ) {
+						throw new Exception ('$pairs should be array but is ' . print_r( $pairs, true) . 
+						' for input ' . print_r( $inputArea, true ) );
+					}					
+					
+					sort( $pairs, SORT_NUMERIC );
+					
+//					error_log('$pairs = ' . print_r($pairs, true));
+					
+					if ( gettype( $pairs) != 'array' ) {
+						throw new Exception ('$pairs should be array but is ' . print_r( $pairs, true) . 
+						' for input ' . print_r( $inputArea, true ) );
+					}
+					
+					foreach ($pairs as $pair) {
+						if ( ! isset( $inputArea[$pair]['x']) ) {
+							throw new Exception ("Missing x co-ordinate for point pair=$pair in inputArea '" . print_r( $inputArea, true ) );
+						}
+						array_push( $coords, (integer) $inputArea[$pair]['x'], (integer) $inputArea[$pair]['y'] );
+					}
+					
+					if ( ! in_array( 
+						$inputArea['shape'],
+						$this->VALID_SHAPES )
+					) {
+						error_log( sprintf('Invalid shape %s discarded.', $inputArea['shape']));
+						continue;
+					}
+					
+					if (
+						'rect' == $inputArea['shape'] && count($coords) != 4 or
+						'circle' == $inputArea['shape'] && count($coords) != 3 or
+						'poly' == $inputArea['shape'] && (count($coords) %2) != 0 or
+						'poly' == $inputArea['shape'] && (count($coords) < 6)
+					) {
+						throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
+					}					
+					
+					// Many of the values are as input
+					$this_area = array(
+						'shape' => $inputArea['shape'],
+						'coords' => $coords,
+						'alt' => sanitize_text_field( $inputArea['alt'] ),
+						'href' => esc_url( $inputArea['href'] ),
+					);
+											
+					array_push( $areasList, $this_area);
+				} // end Foreach $inputArea
+				
+				$this->areas = $areasList;
+				return $this;
+				
+			// Else not a valid array
+			} else {
+				throw new Exception('Tried to create new image map from invalid array ' . print_r($args, true) );
+			}
+		} else if ( gettype( $args[0] ) != 'string' and gettype( $args[0] ) != 'array' ) {
+			throw new Exception( "num_args=$num_args args submitted, with unrecognised type first. Args=" . print_r($args, true ) );
+			
+		} else if ( $num_args == 0 or ( $num_args % 4) != 0) {
+			throw new Exception('Tried to create new image map with arguments not in fours :' . 
+				print_r($args, true) );
+		} else {
+					
+			while ( count($args) ) {
+				// The first part of each pair is the area type 
+				$shape = array_shift($args);
+				// This should be automated - no need to play nice.
+				// $shape = strtolower($shape);
+				if ($shape != 'rect' && $shape != 'circle' && $shape != 'poly') {
+					throw new Exception("Tried to create new image map with unrecognised shape $shape");
+				}
+				
+				// Second part is the co-ordinates 
+				$coords = array_shift($args);
+				if (
+					'rect' == $shape && count($coords) != 4 or
+					'circle' == $shape && count($coords) != 3 or
+					'poly' == $shape && (count($coords) %2) != 0 or
+					'poly' == $shape && (count($coords) < 6)
+				) {
+					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
+				}
+				
+				// Final part is the Alt text. Pre-escaped /
+				$alt = sanitize_text_field( array_shift($args));
+				
+				$href = esc_url(array_shift($args));
+				
+				array_push( $this->areas, array(
+					'shape' => $shape,
+					'coords' => $coords,
+					'alt' => $alt,
+					'href' => $href,
+					)
+				);
+			}
+			
+			return $this;
+		} //input as list if quartets
 	}
 	
 	static $IMAGE_SIZE_ABBREVIATIONS = array (
@@ -101,7 +208,18 @@ class Add_Img_Maps_Map {
 		} 
 		$image_size = self::$IMAGE_SIZE_ABBREVIATIONS[ $image_size ];
 		
+		if ( ! count( $this->areas ) ) {
+			throw new Exception ('get_html called on Map with no areas');
+		}
+		
 		$areaElement = function( $this_area ) {
+				if ( ! isset( $this_area['shape'] ) or 
+					! isset( $this_area['coords'] ) or
+					! isset( $this_area['alt'] ) 
+				) {
+					throw new Exception('get_html called on Map with area not fully defined');
+				}
+		
 				return "<area shape='$this_area[shape]' " .
 					'coords="' . 
 					join(', ', $this_area['coords'] ) .
@@ -118,8 +236,19 @@ class Add_Img_Maps_Map {
 	}
 			
 			
-			
-			
+	/**
+	 *
+	 *
+	 *
+	 * @since	1.0.0
+	 */
+
+	public function as_array () {
+		$result = array();
+		$result['areas'] = $this->areas;
+		// If more members get added, must include them too.
+		return $result;
+	}
 
 	/**
 	 * Define the core functionality of the plugin.

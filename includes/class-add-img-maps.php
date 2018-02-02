@@ -113,6 +113,11 @@ class Add_Img_Maps {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-add-img-maps-i18n.php';
 
 		/**
+		 * The Map object class, representing the Image Maps themselves
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-add-img-maps-map.php';		
+		
+		/**
 		 * The class responsible for defining all actions that occur in the settings admin area.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-add-img-maps-admin.php';
@@ -177,8 +182,9 @@ class Add_Img_Maps {
 		// Add metabox 
 		$this->loader->add_action('add_meta_boxes', 'Add_Img_Maps_Metabox', 'add');
 			
-		//Must also add action to save post.
-		$this->loader->add_action('save_post', 'Add_Img_Maps_Metabox', 'save');
+		// Must also add action to save post. 
+		// Uses pre_post_update hook because save_post only called on core (non-meta) change.
+		$this->loader->add_action('pre_post_update', 'Add_Img_Maps_Metabox', 'save');
 	}
 
 	/**
