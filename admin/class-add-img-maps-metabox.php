@@ -30,7 +30,7 @@ class Add_Img_Maps_Metabox
  
     public static function save($post_id)
     {
-		error_log('Called SAVE');
+		error_log('Add_Img_Maps_Metabox->save');
 		$post = get_post($post_id);
 		
 		// If this is not an image, return
@@ -111,11 +111,15 @@ class Add_Img_Maps_Metabox
 			/* will have to understand the $_POST array, and go through the functions */
 			$maps_metadata = get_post_meta( $post_id, '_add_img_maps', true);
 			
-			error_log('post metadata:');
+			error_log('Retrieved old post metadata:');
 			error_log( print_r( $maps_metadata, true ) );
 			
 			if ( ! $maps_metadata ) {
 				$maps_metadata = array ();
+			} elseif ( $maps_metadata instanceof Add_Img_Maps_Map ) {
+				// If the metadata are storing just one map, it's the one for the full image.
+				$fixed_maps = array( 'full' => $maps_metadata );
+				$maps_metadata = $fixed_maps;
 			}
 			
 			foreach ( $maps_metadata as $size => $map ) {
@@ -127,13 +131,13 @@ class Add_Img_Maps_Metabox
 					; /*do nothing */
 				/* Else the input defines the new map */
 				} else {
-					$maps_metadata = new Add_Img_Maps_Map( $input[$size] );
-					// Unset the input, so to keep track of what's changed.
+					$maps_metadata[$size] = new Add_Img_Maps_Map( $input[$size] );
 				}
 			}
 
-			$new_maps = array_diff_key( $input, $maps_metadata);
+			$new_maps = array_diff_key( $input, $maps_metadata) ;
 
+			error_log( 'List of key (sizes) of $new_maps (if any):');
 			error_log( print_r( $new_maps, true ) );
 			
 			/* New maps are in $input but not maps_metadata */
@@ -142,7 +146,7 @@ class Add_Img_Maps_Metabox
 			}
 				
 			/* And update the metadata */ 
-			error_log( print_r( $maps_metadata, true ) );
+			error_log( 'After updating, maps_metadata are: ' . print_r( $maps_metadata, true ) );
 			
             update_post_meta(
                 $post_id,
@@ -152,6 +156,10 @@ class Add_Img_Maps_Metabox
 			
         }
     }
+ 
+ /**
+  * Output the metadata box on a page.
+  */
  
     public static function html($post)
     {
@@ -207,6 +215,19 @@ class Add_Img_Maps_Metabox
 			if ( $imagemaps instanceof Add_Img_Maps_Map ) {
 				$new_imagemaps = array( 'full' => $imagemaps );
 				$imagemaps = $new_imagemaps;
+			}
+
+			// Ignore invalid maps.
+			foreach ($imagemaps as $image_size => $map ) {
+				if ( ! $map->is_valid() ) {
+					//TODO make this a user-visible message.
+?>					<div class="notice notice-warning inline"><P><?php
+					printf(
+						__('Invalid image map for size <em>"%s"</em> ignored.', 'add-img-maps'),
+						$image_size );
+?>					</p></div><?php			
+					unset( $imagemaps[$image_size] );
+				}
 			}
 
 			foreach ($imagemaps as $image_size => $map) {

@@ -27,6 +27,8 @@ class Add_Img_Maps_Map {
 	protected $areas = array ();
 	protected $COORD_KEYS = array( 'x', 'y', 'r' ); // PHP<5.7 rejects array constants
 	protected $VALID_SHAPES = array( "rect", "circle", "poly" );
+	protected $AREA_KEYS = array( "shape", "href", "alt", "coords");
+	
 	
 	/**
 	 * new Add_Img_Maps_Map ( 'rect|circle|poly', array( *co-ordinates*), 'Alt text', link ... )
@@ -41,6 +43,7 @@ class Add_Img_Maps_Map {
 	public function __construct () {
 		
 		/* Number of arguments should be even, or it takes a hashed object */
+		error_log('Add_Img_Maps_Map->__construct');
 		$args = func_get_args();
 		$num_args = count($args);
 		
@@ -52,14 +55,15 @@ class Add_Img_Maps_Map {
 					throw new Exception ( 'Cannot detect "shape" key in first map: ' . print_r($args[0], true) );
 				}
 				$this->areas = $args[0]['areas'];
+				$this->_validate(); // Throws error if bad.
 				return $this;
+				
 	//			An associative array of form input vars, of form:
 	// [size][$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
-	 
-			} elseif (
-				array_key_exists( 0, array_values($args[0] ) ) 
+			} elseif (	array_key_exists( 0, array_values($args[0] ) ) ) { 
+				error_log('Interpreting values as form input.');
+
 		// and	array_key_exists( 'shape', array_shift(array_values($args[0] ) ) ) 
-				) {
 				// Let's reshape into an object array by rearranging the coords.
 				
 				$areasList = array();
@@ -111,12 +115,7 @@ class Add_Img_Maps_Map {
 						continue;
 					}
 					
-					if (
-						'rect' == $inputArea['shape'] && count($coords) != 4 or
-						'circle' == $inputArea['shape'] && count($coords) != 3 or
-						'poly' == $inputArea['shape'] && (count($coords) %2) != 0 or
-						'poly' == $inputArea['shape'] && (count($coords) < 6)
-					) {
+					if ( ! $this->_coords_apt_for_shape( count($coords), $inputArea['shape'] ) ) {
 						throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
 					}					
 					
@@ -132,6 +131,7 @@ class Add_Img_Maps_Map {
 				} // end Foreach $inputArea
 				
 				$this->areas = $areasList;
+				$this->_validate();
 				return $this;
 				
 			// Else not a valid array
@@ -157,12 +157,7 @@ class Add_Img_Maps_Map {
 				
 				// Second part is the co-ordinates 
 				$coords = array_shift($args);
-				if (
-					'rect' == $shape && count($coords) != 4 or
-					'circle' == $shape && count($coords) != 3 or
-					'poly' == $shape && (count($coords) %2) != 0 or
-					'poly' == $shape && (count($coords) < 6)
-				) {
+				if ( ! $this->_coords_apt_for_shape( count($coords), $shape ) ) {
 					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
 				}
 				
@@ -182,6 +177,15 @@ class Add_Img_Maps_Map {
 			
 			return $this;
 		} //input as list if quartets
+	}
+	
+	protected function _coords_apt_for_shape( $num_coords, $shape ) {
+		return (
+			'rect' == $shape && $num_coords != 4 or
+			'circle' == $shape && $num_coords != 3 or
+			'poly' == $shape && ($num_coords %2) != 0 or
+			'poly' == $shape && $num_coords < 6
+		) ? false : true;
 	}
 	
 	static $IMAGE_SIZE_ABBREVIATIONS = array (
@@ -250,6 +254,49 @@ class Add_Img_Maps_Map {
 		return $result;
 	}
 
+	/**
+	 * Throw error if the object values aren't as expected.
+	 */
+	
+	protected function _validate() {
+		if ( ! count( $this->areas ) ) {
+			throw new Exception ('Map has no areas');
+		}
+		foreach ( $this->areas as $area ) {
+			// Check all keys are present
+			if ( array_diff( $this->AREA_KEYS, array_keys( $area ) ) ) {
+				throw new Exception ('Map area missing a key: ' . print_r( $area, true ) );
+			}
+			if (  ! in_array( $area['shape'], $this->VALID_SHAPES ) ) {
+				throw new Exception ('Area has invalid shape: ' . print_r( $area, true ) );
+			}
+			if ( ! $this->_coords_apt_for_shape( count($area['coords']) , $area['shape'] )) {
+				throw new Exception ('Area has wrong co-ordinate count: ' . print_r( $area, true ) );
+			}
+			foreach ( $area['coords'] as $xy) {
+				if ( ! is_numeric( $xy ) ) {
+					throw new Exception ('Non numeric co-ordinate ' . $xy . ' in:' . print_r( $area, true ) );
+				}
+			}
+			// And assert is_numeric
+			
+		}
+	
+	}
+	
+	/**
+	 * Return whether or not the object is valid.
+	 */
+	public function is_valid() {
+		try {
+			$this->_validate();
+			return true;
+		} catch (Exception $e) {
+			error_log('Area failed to validate: ' . $e);
+			return false;
+		}
+	}
+	
 	/**
 	 * Define the core functionality of the plugin.
 	 *
