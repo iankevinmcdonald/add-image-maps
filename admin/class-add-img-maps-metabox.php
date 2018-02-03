@@ -236,7 +236,8 @@ class Add_Img_Maps_Metabox
 		 * 	initialise the HANDLE_SIZES 'add map' button */	
 			?>
 				<div id="addimgmaps-<?php echo $image_size; ?>">
-				<a href="#" class="button-secondary" id="addimgmaps-<?php echo $image_size; ?>-ed">
+				<a href="#" class="button-secondary addimgmaps-ed"
+					id="addimgmaps-<?php echo $image_size; ?>-ed" data-imagesize="<?php echo $image_size; ?>">
 				<?php			
 				if (ADDIMGMAPS_HANDLE_SIZES) {
 					printf(
@@ -248,11 +249,7 @@ class Add_Img_Maps_Metabox
 					_e('Open image map for editing.', 'add-img-maps');
 					// Do something to trigger the autoloading of the imagemap TODO
 				}
-				?></a>
-				<input type="hidden" 
-					name="addimgmaps-<?php echo $image_size; ?>-unchanged" 
-					id="addimgmaps-<?php echo $image_size; ?>-unchanged" value="1">				
-				</div>
+				?></a></div>
 <?php		} // close foreach Image
 			
 //			error_log( '$imagemaps=' . print_r( $imagemaps, true) );

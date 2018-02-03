@@ -29,9 +29,10 @@ There are also some special values
   * ctrl *the fieldset offering a choice about which maps to edit*
     * rm *this has been deleted*
 	* unchanged *this has not been changed since the last time*
-
-The old map is saved as a JSON string the data attribute of ???, and turned into
-a form by add-img-maps-metabox.js .
+	
+The metabox initially loads existing maps as empty fieldset elements, with
+a data-map attribute containing a JSON object for the map. It is initalised
+when the control button is pressed.
 
 #### The Object
 

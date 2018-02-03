@@ -107,20 +107,25 @@
 		});
 		
 		// Initialise any 'edit map' buttons.
-		var editMapButtons = $( '#' + pluginName + '-ed' );
+		var editMapButtons = $( '.' + pluginName + '-ed' ); //ID includes size
 		editMapButtons.click( function() {
 			var image_size = $(this).data('imagesize');
+/*			var fieldSet = $( 'fieldset#' + pluginName + '-' + image_size );
+			var JSON_map = fieldSet.data('map');
 			// NB also extract from data-map & Pass 
 			alert('TODO implement edit');
-			setupMap ( image_size, { } );
-			//TODO confirm this works
+*/			console.assert( image_size );
+			setupMap ( image_size ); //setupMap will open either new or saved map
 			$(this).hide();
 		} );
 	}
 	
    /**
-	 * Hides the control panel, unhides the editing area, dims the image.
+	 * Hides the control panel, unhides the editing area, dims the image, &c.
 	 *
+	 * Other maintenance includes removing the 'unchanged' flag, if it exists, 
+	 * and redrawing the map.
+	 * 
 	 * @since      1.0
 	 * @access    private
 	 * @returns {none}		
@@ -128,10 +133,18 @@
 	
 	function openEditMap ( imageSize ) {
 		$('#addimgmaps-ctrlmaps').hide();
-		// Show addimgmaps-<size> fieldset
-		$( 'fieldset#addimgmaps-' + imageSize ).show();
+
 		//Grey the main image out a little; as another cue about imagemap being edited.
 		$( 'img.thumbnail' )[0].style.opacity = 0.6; 
+
+		// Show addimgmaps-<size> fieldset
+		var jQ_thisFieldSet = $( 'fieldset#addimgmaps-' + imageSize );
+		jQ_thisFieldSet.show();
+		drawImageMap( jQ_thisFieldSet.get(0) );
+
+		// Unset 'unchanged' flag
+		jQ_thisFieldSet.find( '#' + pluginName + '-' + imageSize + '-unchanged').val(0);
+		
 		// ensure the Canvas is visible
 		$( 'canvas#addimgmaps-canvas' ).show();
 	}
@@ -167,12 +180,21 @@
 	 * @param {string}   [var=full] which Wordpress size (eg "full", "thumbnail") to open
 	 * @returns {int} width in pixels
 	 */		
-	function setupMap( imageSize, mapArray ) {
+	function setupMap( imageSize ) {
 
 		// Find Metabox element for imageSize - part of mapInit
-		var mapForImageSize = document.getElementById( pluginName + "-" + imageSize );
-		// Again, this assertion needs to change to be something other than form. TODO
+		var mapForImageSize = $( 'fieldset#' + pluginName + "-" + imageSize ).get(0);
+		// Check that it's a fieldset
+		console.assert( typeof (mapForImageSize) == 'object', 'Failed to get element ' + pluginName + '-' + imageSize );
 		console.assert( mapForImageSize.tagName == "FIELDSET", mapForImageSize);
+
+		var savedMap = false;
+		
+		// Are we loading an existing map?
+		if ( mapForImageSize.hasAttribute('data-map') ) {
+			savedMap = JSON.parse( mapForImageSize.getAttribute('data-map') );
+			console.log ( 'Extracted JSON object:' . savedMap );
+		}
 
 		// And the remove Map button
 		var rmMapButton = $('<A/>', {
@@ -235,11 +257,10 @@
 				 
 
 				 /* Delete the image map */				
-				$('#addimgmaps-' + imageSize).empty();
+				$('fieldset#addimgmaps-' + imageSize).empty();
 				
-				// When IMAGE_SIZES are implemented, will have to re-set the 'nochange' field
-				//	<input name="addimgmaps-$size-unchanged" id=(same) type="hidden" value="1">
-
+				// set 'unchanged' flag
+				jQ_thisFieldSet.find( '#' + pluginName + '-' + imageSize + '-unchanged').val(0);
 				closeEditMap (imageSize);
 								
 				}
@@ -270,11 +291,20 @@
 			}
 		);
 		
+		//Append the buttons
+		$(mapForImageSize).append( rmMapButton, ' ', cancelMapButton, ' ', createAreaButton, ' ');
 		
-		// New Area box		
-		var firstArea = createAreaBox(imageSize, 0 , "rect");
-		$(mapForImageSize).append( rmMapButton, ' ', cancelMapButton, ' ', createAreaButton, ' ', firstArea );
-		drawImageMap( mapForImageSize);
+		if ( savedMap ) {
+			var numAreas = savedMap.areas.length;
+			for ( var i = 0; i< numAreas; i++ ) {
+				var area = createAreaBox( imageSize, i, savedMap.areas[i]);	
+				$(mapForImageSize).append(area);
+			}
+		} else {
+			// New Area box		
+			var firstArea = createAreaBox(imageSize, 0 , "rect");
+			$(mapForImageSize).append( firstArea );
+		}
 		
 		// TODO - if this was an existing one, Unset the 'unchanged' element.
 		
@@ -283,7 +313,6 @@
 		//$( mapForImageSize ).show();
 		// The addimgmaps-ctrlmaps box should now be disabled
 		//$('#addimgmaps-ctrlmaps').hide();
-		
 		
 		
 		// This is a JScript event, not a JQuery one.
@@ -302,19 +331,23 @@
 	 * @param      {string}   [shape]    the shape of the clickable area (default: 'rect')
 	 * @returns    {object}	A DIV element containing the input forms for that clickable area
 	 */	
-	function createAreaBox( imageSize, areaIndex, shape ) {
+	function createAreaBox( imageSize, areaIndex, areaObj ) {
 		// Catch an issue
 		console.assert ( imageSize == "full", "Image expected to be full, instead was ", imageSize); 
-		// shape defaults to 'rect'; 
-		if ( !shape ) {
-			shape ="rect";
-		}
-		console.assert ( shape=="rect"|| shape=="circle"||shape=="poly", "Invalid shape ", shape);
-
 		
-		// find the last area number so we can cacluate the new Id
+		var shape;
+		// shape defaults to 'rect'; 
+		if ( !areaObj ) {
+			shape ="rect";
+		} else if ( typeof areaObj == 'string' ) {
+			shape = areaObj;
+			areaObj = null;
+		} else {
+			// Existing area 
+			shape = areaObj.shape;
+		}
 
-		// Areas always have an index of the last shape +1
+		console.assert ( shape=="rect"|| shape=="circle"||shape=="poly", "Invalid shape ", shape);
 
 		var metaBoxForImageSize = document.getElementById( pluginName + "-" + imageSize);
 		//console.log( metaBoxForImageSize );
@@ -344,11 +377,11 @@
 		
 		switch ( shape ) {
 			case "rect":
-				newArea.appendChild( createCoordForRect( newArea ) );
+				newArea.appendChild( createCoordForRect( newArea, areaObj.coords ) );
 			break;
 			
 			case "circle":
-				newArea.appendChild( createCoordForCircle( newArea ) );
+				newArea.appendChild( createCoordForCircle( newArea, areaObj.coords ) );
 			break;
 
 			// Poly also needs to add a button for extra co-ordinates.
@@ -362,7 +395,11 @@
 					drawImageMap( metaBoxForImageSize );
 				});
 				newArea.appendChild(addCoordButton);
-				appendCoordForPoly( newArea ) ;
+				if ( areaObj ) {
+					appendCoordsForSavedPoly( newArea, areaObj.coords );
+				} else {
+					appendCoordForNewPoly( newArea ) ; 
+				}
 			break;
 			
 			default:
@@ -377,6 +414,9 @@
 		newField.maxlength=128;
 		newField.size=32;
 		newField.placeholder="Please enter the web link that the clickable area links to.";
+		if ( areaObj ) {
+			newField.value = areaObj.href;
+		}
 		newArea.appendChild( newField );
 
 		newArea.appendChild( document.createElement('br'));
@@ -389,6 +429,9 @@
 		newField.maxlength=128;
 		newField.size=32;
 		newField.placeholder="Please enter alternative text for people who don't see the image.";
+		if ( areaObj ) {
+			newField.value = areaObj.alt;
+		}
 		newArea.appendChild( newField );
 		
 		return newArea;
@@ -465,17 +508,28 @@
 	 * @returns {DOMObject} The div element, ready to be appended.
 	 */
 	
-	function createCoordForRect( areaDiv ) {
+	function createCoordForRect( areaDiv, coordArray ) {
 		// createNumberInput - -0-x -0-y -1-x -1-y
 		var coordsDiv = document.createElement( "div" );
 		coordsDiv.id = areaDiv.id + "-co";
 		var span1 = document.createElement( "span" );
 		span1.className='addimgmaps-coord-pair';
 		
+		if( ! coordArray ) {
+			var randomOffset = Math.random();
+			
+			coordArray = [
+				getAttachmentWidth() * 0.2 + 0.1*randomOffset,
+				getAttachmentHeight() * 0.2 + 0.1*randomOffset,
+				getAttachmentWidth() * 0.7 + 0.1*randomOffset,
+				getAttachmentHeight() * 0.7 + 0.1*randomOffset,
+			];
+		}
+		
 		span1.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-0-x", 
-				getAttachmentWidth() * 0.25,
+				coordArray[0],
 				getAttachmentWidth() - 1,
 				'→'
 			)
@@ -483,7 +537,7 @@
 		span1.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-0-y", 
-				getAttachmentHeight() * 0.25,
+				coordArray[1],
 				getAttachmentHeight() - 1,
 				'↓'
 			)
@@ -495,7 +549,7 @@
 		span2.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-1-x", 
-				getAttachmentWidth() * 0.75,
+				coordArray[2],
 				getAttachmentWidth() - 1,
 				'→'
 			)
@@ -503,7 +557,7 @@
 		span2.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-1-y", 
-				getAttachmentHeight() * 0.75,
+				coordArray[3],
 				getAttachmentHeight() - 1,
 				'↓'
 			)
@@ -523,14 +577,23 @@
 	 * @returns {DOMObject} The div form element, ready to be appended.
 	 */
 	
-	function createCoordForCircle(areaDiv) {	
+	function createCoordForCircle(areaDiv, coordsArray ) {	
 		// create NumberInput - x, y, r
 		var coordsDiv = document.createElement( "div" );
+		
+		if ( ! coordsArray ) {
+			var randomOffset = Math.random();
+			coordsArray = [
+				getAttachmentWidth() * 0.3 + 0.4*randomOffset,
+				getAttachmentHeight() * 0.3 - 0.4*randomOffset,			
+				(randomOffset+0.2)*(getAttachmentHeight()+getAttachmentWidth())/4
+			];
+		}
 		coordsDiv.id = areaDiv.id + "-co";
 		coordsDiv.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-x", 
-				getAttachmentWidth() * 0.5,
+				coordsArray[0],
 				getAttachmentWidth() - 1,
 				'→'
 			)
@@ -538,7 +601,7 @@
 		coordsDiv.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-y", 
-				getAttachmentHeight() * 0.5,
+				coordsArray[1],
 				getAttachmentHeight() -1,
 				'↓'
 			)
@@ -546,7 +609,7 @@
 		coordsDiv.appendChild ( 
 			createNumberInput(
 				areaDiv.id + "-r", 
-				(getAttachmentHeight()+getAttachmentWidth())/7,
+				coordsArray[2],
 				/* At this maximum, the circle could eclipse the whole area */
 				(getAttachmentHeight()+getAttachmentWidth())/2,
 				'𝑟'
@@ -569,21 +632,22 @@
 	 * @returns {boolean} True (because each co-ord pair is its own div, they must be appended in-function)
 	 */
 	
-	function appendCoordForPoly( areaDiv ) {
+	function appendCoordForNewPoly( areaDiv ) {
 		// The polygons have multiple co-ordinate divisions
+		var randomOffset = Math.random();
 		
 		areaDiv.appendChild( 
 			createCoordPairForPoly( 
 				areaDiv.id + "-0", 
-				getAttachmentWidth() * 0.25,
-				getAttachmentHeight() * 0.3
+				getAttachmentWidth() * 0.2 + 0.1*randomOffset,
+				getAttachmentHeight() * 0.3 + 0.1*randomOffset
 			)
 		);
 
 		areaDiv.appendChild( 
 			createCoordPairForPoly( 
 				areaDiv.id + "-1", 
-				getAttachmentWidth() * 0.5,
+				getAttachmentWidth() * 0.4 + 0.2*randomOffset,
 				getAttachmentHeight() * 0.75
 			)
 		);
@@ -592,7 +656,7 @@
 			createCoordPairForPoly( 
 				areaDiv.id + "-2", 
 				getAttachmentWidth() * 0.75,
-				getAttachmentHeight() * 0.3
+				getAttachmentHeight() * 0.3 - 0.1*randomOffset
 			)
 		);
 		
@@ -604,6 +668,46 @@
 			// Otherwise create 2 co-ords
 	}
 
+	/*
+	 * Append div elements with input boxes for a co-ordinate for all saved points.
+	 *
+	 * @param {DOMObject} areaDiv		DOM form element for the polygon
+	 * @param {array}	  coordsArray	Array of the co-ordinates
+	 *
+	 * @see createCoordPairForPoly
+	 * 
+	 * Polygons have an arbitrary number of co-ordinates, and hence more requirements.
+	 * And the delete button needs to be shown or hidden depending on the number of
+	 * co-ordinate paris.
+	 *
+	 * @returns {boolean} True (because each co-ord pair is its own div, they must be appended in-function)
+	 */
+
+	 function appendCoordForSavedPoly( areaDiv, coordsArray ) {
+		// The polygons have multiple co-ordinate divisions
+		for (var i = 0; i*2 < coordsArray.length ; i++ ) {
+		
+			areaDiv.appendChild( 
+				createCoordPairForPoly( 
+					areaDiv.id + "-" + i, 
+					coordsArray[i],
+					coordsArray[i+1]
+				)
+			);
+
+		}
+		
+		// Make sure the delete buttons starts off hidden for triangles
+		if ( coordsArray.length == 6 ) {
+			$(areaDiv).find(".addimgmaps-delete-coords").hide();
+		}
+		
+		return true;
+	
+	}
+	
+	
+	
 	/*
 	 * Create a pair of polygon co-ordinates starting at the given dimensions.
 	 *
