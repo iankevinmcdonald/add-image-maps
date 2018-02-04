@@ -115,8 +115,8 @@
 			// NB also extract from data-map & Pass 
 			alert('TODO implement edit');
 */			console.assert( image_size );
-			setupMap ( image_size ); //setupMap will open either new or saved map
-			$(this).hide();
+			//setupMap will open either new or saved map & call openEditMap to make visible.
+			setupMap ( image_size ); 
 		} );
 	}
 	
@@ -142,8 +142,8 @@
 		jQ_thisFieldSet.show();
 		drawImageMap( jQ_thisFieldSet.get(0) );
 
-		// Unset 'unchanged' flag
-		jQ_thisFieldSet.find( '#' + pluginName + '-' + imageSize + '-unchanged').val(0);
+		// Unset 'unchanged' flag (if any)
+		$( '#' + pluginName + '-' + imageSize + '-unchanged').val(0);
 		
 		// ensure the Canvas is visible
 		$( 'canvas#addimgmaps-canvas' ).show();
@@ -204,34 +204,50 @@
 			'href' : '#',
 			'click' : function() {
 				/**
-				 * @todo Removing an image map - needs WP integration.
+			     * (Closure) Wipes editing area & sets 'rm' flag.
+				 *
 				 * @Listens Click on 'delete map' button.
 				 */
-				alert("Not implement till WP integration"); //TODO
+
+				 /* Delete the image map */				
+				$('fieldset#addimgmaps-' + imageSize).empty();
+				
+				/* set 'rm' flag (unless this is a new map, in which it
+				 * neither matters nor exists. */
+				$( '[name=' + pluginName + '-' + imageSize + '-rm]' ).val(1);
+				closeEditMap (imageSize);
+				/* Expected to return -ed button to suggestion you create a new map; or cancel the deletion? */
+				$( 'a#' + pluginName + '-' + imageSize + '-ed' ).text(
+						'Cancel deletion & re-open "' + imageSize + '" map' );
+						
 				}
 			}
 				
 		);
 		
-		// NOT CURRENTLY INCLUDED
+		// NOT CURRENTLY INCLUDED - NO USER CASE
+		// (will be used to switch between maps)
 		var closeMapButton = $('<A/>', {
 			'id': pluginName + "-" + imageSize + "-close",
 			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-admin-collapse',
-			'text' : ' Stop editing',
+			'text' : 'Pause editing',
 			'href' : '#',
 			'click' : function() {
 				/**
 				 * (Closure) to freeze the edit. Will need to change button.
+				 *
 				 * @Listens Click on 'stop editing' button.
 				 */
 				/* There are state changes to addimgmaps-ctrlmaps
 				 * - either a "no map" has become "unsaved new map"
 				 *		- or existing map has "unsaved changes"
-				 *		- or existing map has an "unsaved deletion"
+				 *	
+				 * (A deletion is modelled as a different state entirely.)
 				 */
 
 				 // Show control panel, modified
-				$('#addimgmaps-ctrlmaps').append('<div>Unsaved changes to image map.</div>');
+				$( 'a#' + pluginName + '-' + imageSize + '-ed' ).text(
+						'Resume editing map for size "' + imageSize + '"' );
 				closeEditMap(imageSize);
 
 				}
@@ -259,8 +275,9 @@
 				 /* Delete the image map */				
 				$('fieldset#addimgmaps-' + imageSize).empty();
 				
-				// set 'unchanged' flag
-				jQ_thisFieldSet.find( '#' + pluginName + '-' + imageSize + '-unchanged').val(0);
+				/* set 'unchanged' flag (unless this is a new map, in which it
+				 * neither matters nor exists. */
+				$( '#' + pluginName + '-' + imageSize + '-unchanged').val(1);
 				closeEditMap (imageSize);
 								
 				}
@@ -306,8 +323,6 @@
 			$(mapForImageSize).append( firstArea );
 		}
 		
-		// TODO - if this was an existing one, Unset the 'unchanged' element.
-		
 		openEditMap ( imageSize );
 		//Remember, it started hidden
 		//$( mapForImageSize ).show();
@@ -349,8 +364,8 @@
 
 		console.assert ( shape=="rect"|| shape=="circle"||shape=="poly", "Invalid shape ", shape);
 
-		var metaBoxForImageSize = document.getElementById( pluginName + "-" + imageSize);
-		//console.log( metaBoxForImageSize );
+		var metaBoxForImageSize = $( 'fieldset#' + pluginName + "-" + imageSize ).get(0);
+		console.assert( metaBoxForImageSize );
 		
 		var newArea = document.createElement("div");
 		var newAreaId = pluginName + "-" + imageSize + "-" + areaIndex;
@@ -377,11 +392,11 @@
 		
 		switch ( shape ) {
 			case "rect":
-				newArea.appendChild( createCoordForRect( newArea, areaObj.coords ) );
+				newArea.appendChild( createCoordForRect( newArea, areaObj? areaObj.coords : null ) );
 			break;
 			
 			case "circle":
-				newArea.appendChild( createCoordForCircle( newArea, areaObj.coords ) );
+				newArea.appendChild( createCoordForCircle( newArea, areaObj? areaObj.coords : null ) );
 			break;
 
 			// Poly also needs to add a button for extra co-ordinates.
@@ -396,7 +411,7 @@
 				});
 				newArea.appendChild(addCoordButton);
 				if ( areaObj ) {
-					appendCoordsForSavedPoly( newArea, areaObj.coords );
+					appendCoordForSavedPoly( newArea, areaObj.coords );
 				} else {
 					appendCoordForNewPoly( newArea ) ; 
 				}
@@ -482,18 +497,37 @@
 				 * @Listens The shape selector changing value.
 				 */
 				var newShapeValue = shape.value;
-				// We need to delete the old one first, so that the new one has the right area count.
+
 				// Our ID standard is {plugin}-{imageSize}-{areanum}
 				var idBits = areaId.split("-");
-				var parentMetaBox = document.getElementById( idBits[0] + "-" + idBits[1]) ;
-				// Check that this is the element I think it is; needs to be a robust check in future. TODO
-				console.assert( parentMetaBox.id.endsWith("full") );
+								
+				var parentMetaBox = $( 'fieldset#' + idBits[0] + "-" + idBits[1] ).get(0) ;
+				
+/* Easier to:
+- retain the old areaBox, and run through lots of x.find( X ).value = y.find( Y).value
+- with translating some of the co-ordinates (eg so that a polygon turns into a rectangle
+					occupying roughtly the same area) being a wishlist item.
+ */
+				
 				console.log( parentMetaBox, shape, shape.parentNode );
-				parentMetaBox.replaceChild( 
-					createAreaBox( idBits[1], idBits[2], newShapeValue ),
+				var newAreaBox = createAreaBox( idBits[1], idBits[2], newShapeValue );
+				var oldAreaBox = parentMetaBox.replaceChild( 
+					newAreaBox,
 					shape.parentNode
 				);
-				// NB: Can indeed hide useful attributs on DOM elements (I think there's a jQuery data thing)
+
+				// The only field of type TEXT is the ALT field.
+				$( newAreaBox ).children('input:text').val(
+					$( oldAreaBox ).children('input:text').val()
+				);
+
+				
+				// Only one with a name field sending in HREF
+				$( newAreaBox ).children('[name$="href"]').val(
+					$( oldAreaBox ).children('[name$="href"]').val()
+				);
+				
+								
 			}
 		);	
 		
@@ -690,8 +724,8 @@
 			areaDiv.appendChild( 
 				createCoordPairForPoly( 
 					areaDiv.id + "-" + i, 
-					coordsArray[i],
-					coordsArray[i+1]
+					coordsArray[2*i],
+					coordsArray[2*i+1]
 				)
 			);
 

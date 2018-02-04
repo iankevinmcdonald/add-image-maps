@@ -61,7 +61,7 @@ class Add_Img_Maps_Map {
 	//			An associative array of form input vars, of form:
 	// [size][$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
 			} elseif (	array_key_exists( 0, array_values($args[0] ) ) ) { 
-				error_log('Interpreting values as form input.');
+				error_log('Interpreting values as form input: ' . print_r( $args[0], true ) );
 
 		// and	array_key_exists( 'shape', array_shift(array_values($args[0] ) ) ) 
 				// Let's reshape into an object array by rearranging the coords.

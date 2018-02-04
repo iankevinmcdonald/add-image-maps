@@ -122,25 +122,33 @@ class Add_Img_Maps_Metabox
 				$maps_metadata = $fixed_maps;
 			}
 			
+			// Which maps are new?
+			/* Must do this before doing any deletions from maps_metadata */
+			
+			$new_maps = array_diff_key( $input, $maps_metadata) ;
+			
+			// Process all the old maps first.
+			error_log( 'List of key (sizes) of $new_maps (if any):');
+			error_log( print_r( $new_maps, true ) );
+			
 			foreach ( $maps_metadata as $size => $map ) {
 				/* Deleted */
 				if ( isset($input[$size]['rm']) and $input[$size]['rm'] ) {
 					unset ( $maps_metadata[$size] );
 				/* Unchanged */
 				} elseif ( isset($input['size']['unchanged']) and $input[$size]['unchanged']) {
-					; /*do nothing */
+					/*do nothing */;
 				/* Else the input defines the new map */
 				} else {
+					//Remove the flags (unset doesn't throw an error if it doesn't exist)				
+					unset( $input[$size]['unchanged'], $input[$size]['rm'] );
+					
+					// Send the rest of it to the constructor.
 					$maps_metadata[$size] = new Add_Img_Maps_Map( $input[$size] );
 				}
 			}
-
-			$new_maps = array_diff_key( $input, $maps_metadata) ;
-
-			error_log( 'List of key (sizes) of $new_maps (if any):');
-			error_log( print_r( $new_maps, true ) );
 			
-			/* New maps are in $input but not maps_metadata */
+			/* New maps are in $input but not maps_metadata; construct them too */
 			foreach( $new_maps  as $size => $map ) {
 				$maps_metadata[$size] = new Add_Img_Maps_Map( $input[$size] );
 			}
@@ -234,10 +242,11 @@ class Add_Img_Maps_Metabox
 		/* TODO 
 		 *	create image size pulldown
 		 * 	initialise the HANDLE_SIZES 'add map' button */	
+				$image_size_id = 'addimgmaps-' . $image_size;
 			?>
-				<div id="addimgmaps-<?php echo $image_size; ?>">
+				<div id="<?php echo $image_size_id; ?>">
 				<a href="#" class="button-secondary addimgmaps-ed"
-					id="addimgmaps-<?php echo $image_size; ?>-ed" data-imagesize="<?php echo $image_size; ?>">
+					id="<?php echo $image_size_id; ?>-ed" data-imagesize="<?php echo $image_size; ?>">
 				<?php			
 				if (ADDIMGMAPS_HANDLE_SIZES) {
 					printf(
@@ -249,7 +258,12 @@ class Add_Img_Maps_Metabox
 					_e('Open image map for editing.', 'add-img-maps');
 					// Do something to trigger the autoloading of the imagemap TODO
 				}
-				?></a></div>
+				?></a>
+				<input type="hidden" name="<?php echo $image_size_id ?>-unchanged" id="<?php 
+					echo $image_size_id ?>-unchanged" value="1">
+				<input type="hidden" name="<?php echo $image_size_id ?>-rm" id="<?php 
+					echo $image_size_id ?>-rm" value="0">
+				</div>
 <?php		} // close foreach Image
 			
 //			error_log( '$imagemaps=' . print_r( $imagemaps, true) );
@@ -269,9 +283,6 @@ class Add_Img_Maps_Metabox
 			<div ><?php _e('There are no maps attached to this image.', 'add-img-maps'); ?></div>
 <?php	}
 
-		// Add new map pulldown:
-		?><pre><?php var_dump("All_sizes", $all_sizes, "Sizes without Image Maps", $sizesWithoutImageMaps); ?></pre><?php
-		
 		switch (count($sizesWithoutImageMaps)) {
 			case 0: // no sizes witout image maps, so nothing to mention
 			break;
@@ -308,8 +319,6 @@ class Add_Img_Maps_Metabox
 						throw new Exception ('Expected map object, got ' . print_r( $imagemaps[$size] , true) );
 					}
 	?>				data-map='<? echo json_encode( $imagemaps[$size]->as_array() ); ?>'>
-			<input name="addimgmaps-<?php echo $size; ?>-unchanged" id="addimgmaps-<?php echo $size; ?>-unchanged"
-					type="hidden" value="1">
 <?php			} else {
 	?>			> 		<?php
 				} 
