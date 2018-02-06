@@ -44,6 +44,7 @@ class Add_Img_Maps_Activator {
 			'default'=> array(
 				'header' => 1,
 				'content' => 1,
+				'thumbnail' => 1,
 				'srcset' => 'off',
 				'test' => 'yes, the defaults were stored',
 				)

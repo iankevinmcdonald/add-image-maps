@@ -109,7 +109,7 @@ class Add_Img_Maps_Metabox
 			error_log( print_r( $input, true ) );
 			
 			/* will have to understand the $_POST array, and go through the functions */
-			$maps_metadata = get_post_meta( $post_id, '_add_img_maps', true);
+			$maps_metadata = get_post_meta( $post_id, '_add_img_maps', false ); // NB: just changed to false
 			
 			error_log('Retrieved old post metadata:');
 			error_log( print_r( $maps_metadata, true ) );
@@ -328,7 +328,20 @@ class Add_Img_Maps_Metabox
 				$size);
 	?>		</div></fieldset> <?php
 		}
-	?>	</div>			<?php
+		//Admin note about post
+		if ( $post->post_parent ) {
+			?><div class="notice notice-info inline" ><p><?php
+			printf(
+				__('Image attached to "%s" (id=%s)', 
+					Add_Img_Maps::PLUGIN_NAME ),
+				get_the_title( $post->post_parent ),
+				$post->post_parent
+			);
+		} else {
+			?><div class="notice notice-warning inline" ><p><?php
+			_e('This image is not attached to a page/post, so the imagemap will not be detected in content (though it will if featured or header).', Add_Img_Maps::PLUGIN_NAME );
+		}
+	?>	</p></div>			<?php
 	/*
 	 * And note, we now need two initalisations:
 	 * - Initialise the box

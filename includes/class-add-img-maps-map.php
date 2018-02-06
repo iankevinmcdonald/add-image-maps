@@ -25,9 +25,9 @@ class Add_Img_Maps_Map {
 	 *
 	 */
 	protected $areas = array ();
-	protected $COORD_KEYS = array( 'x', 'y', 'r' ); // PHP<5.7 rejects array constants
-	protected $VALID_SHAPES = array( "rect", "circle", "poly" );
-	protected $AREA_KEYS = array( "shape", "href", "alt", "coords");
+	static protected $COORD_KEYS = array( 'x', 'y', 'r' ); // PHP<5.7 rejects array constants
+	static protected $VALID_SHAPES = array( "rect", "circle", "poly" );
+	static protected $AREA_KEYS = array( "shape", "href", "alt", "coords");
 	
 	
 	/**
@@ -76,7 +76,7 @@ class Add_Img_Maps_Map {
 					// Get all the co-ordinates (and typecast them to int, as a defence)					
 					$coords = array();
 					// Keys are x, y, and r in order.
-					foreach ( $this->COORD_KEYS as $key ) {
+					foreach ( self::$COORD_KEYS as $key ) {
 						if (isset($inputArea[$key]) ) {
 							array_push( $coords, (integer) $inputArea[$key] );
 						}
@@ -109,7 +109,7 @@ class Add_Img_Maps_Map {
 					
 					if ( ! in_array( 
 						$inputArea['shape'],
-						$this->VALID_SHAPES )
+						self::$VALID_SHAPES )
 					) {
 						error_log( sprintf('Invalid shape %s discarded.', $inputArea['shape']));
 						continue;
@@ -197,23 +197,40 @@ class Add_Img_Maps_Map {
 		'large' => 'lrg',
 	);
 	
-	public function get_html (  $image_id, $image_size=null) {
+
+
+	public static function get_map_id ( $image_id, $image_size='full' ) {
+
+		// Trim the word 'image', so that 'full image' becomes 'image'
+		$image_size = 
+//			sanitize_key(
+				trim (
+					preg_replace('/\W*image\W*/', '', $image_size) 
+//				)
+			);
+	
+		return sprintf("%s-%s-%s",
+			Add_Img_Maps::PLUGIN_NAME,
+			$image_id,
+			$image_size );
+	
+	}
+	
+	
+	public function get_html (  $attrs ) {
 		// image_size defaults to 'full'
-		if ( is_null ($image_size) ) {
-			$image_size = 'full';
-		} 
-				
-		// Just in case they created their own
-		if ( ! isset( self::$IMAGE_SIZE_ABBREVIATIONS[ $image_size ] )) {
-			// A hash will ensure that the key is short and apt, but make it a big unreadable
-			// It would be better to write a custum routine to create an abbreviation
-			echo "Image size $image_size not in IMAGE_SIZE_ABBREVIATIONS" ;
-			self::$IMAGE_SIZE_ABBREVIATIONS[ $image_size ] = hash ( 'crc32b'  , $image_size );
-		} 
-		$image_size = self::$IMAGE_SIZE_ABBREVIATIONS[ $image_size ];
 		
+		if ( is_null ($attrs) or ! isset($attrs['id'] ) ) {
+			throw new Exception ('Add_Img_Maps_Map->get_html without set attrs');
+		}
+
 		if ( ! count( $this->areas ) ) {
 			throw new Exception ('get_html called on Map with no areas');
+		}
+		
+		// Set name to ID
+		if ( !isset( $attrs['name'] ) ) {
+			$attrs['name'] = $attrs['id'];
 		}
 		
 		$areaElement = function( $this_area ) {
@@ -228,12 +245,21 @@ class Add_Img_Maps_Map {
 					'coords="' . 
 					join(', ', $this_area['coords'] ) .
 					'" ' .
+					"href='" . esc_url( $this_area['href'] ) . "' " .
 					"alt='$this_area[alt]' >"
 				;
 		};
-			
-		$name = $image_id . '-' . $image_size;
-		return "<map id='$name' name='$name'>" .
+	
+		// Attributes were sanitized & escaped when entered.
+		
+		
+		
+		return "<map " .
+			implode( ' ', array_map(
+				function($k, $v) { return $k . '="' . esc_attr( $v ) . '"'; },
+				array_keys($attrs), $attrs ) 
+			) .
+			'>"' .
 			join( ' ', array_map ( $areaElement , $this->areas) ) .
 			'</map>'
 		;
@@ -264,10 +290,10 @@ class Add_Img_Maps_Map {
 		}
 		foreach ( $this->areas as $area ) {
 			// Check all keys are present
-			if ( array_diff( $this->AREA_KEYS, array_keys( $area ) ) ) {
+			if ( array_diff( self::$AREA_KEYS, array_keys( $area ) ) ) {
 				throw new Exception ('Map area missing a key: ' . print_r( $area, true ) );
 			}
-			if (  ! in_array( $area['shape'], $this->VALID_SHAPES ) ) {
+			if (  ! in_array( $area['shape'], self::$VALID_SHAPES ) ) {
 				throw new Exception ('Area has invalid shape: ' . print_r( $area, true ) );
 			}
 			if ( ! $this->_coords_apt_for_shape( count($area['coords']) , $area['shape'] )) {

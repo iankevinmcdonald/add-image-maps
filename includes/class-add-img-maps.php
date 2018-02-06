@@ -163,7 +163,7 @@ class Add_Img_Maps {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
+	
 		$plugin_admin = new Add_Img_Maps_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
@@ -195,12 +195,34 @@ class Add_Img_Maps {
 	 * @access   private
 	 */
 	private function define_public_hooks() {
-
+	
 		$plugin_public = new Add_Img_Maps_Public( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+//		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+/* Not using those hooks.
+
+		if ( $plugin_public->add_img_maps_options['content'] ) {
+			// Takes 3 arguments.
+			error_log('Adding wp_get_attachment_image_attributes filter');
+			$this->loader->add_filter('wp_get_attachment_image_attributes', $plugin_public, 'featured_usemap', 10, 3);
+			$this->loader->add_filter('get_image_tag', $plugin_public, 'content_usemap', 10, 6); 
+			
+		}
+		if ( $plugin_public->add_img_maps_options['header'] ) {
+			error_log('Adding get_header_image_tag');
+			$this->loader->add_filter('get_header_image_tag', $plugin_public, 'header_usemap', 15, 3);
+			// Why not check for a loaded plugin? Because that would involve loading the plugin.php file, 
+			// and hence be trading the overhead of adding a superflous filter for the overhead of 
+			// loading an extra file. Besides, I don't know how many header plugins work with this.
+			}
+
+		$this->loader->add_action('the_content', $plugin_public, 'content_usemap');
+			
+*/		
+		$this->loader->add_action('wp_footer', $plugin_public, 'append_maps');
+		
 	}
 
 	/**

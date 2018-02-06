@@ -213,6 +213,7 @@ class Add_Img_Maps_Admin {
 		}
 		$valid['header'] = (isset($input['header']) && !empty($input['header'])) ? 1 : 0;
 		$valid['content'] = (isset($input['content']) && !empty($input['content'])) ? 1 : 0;
+		$valid['thumbnail'] = (isset($input['thumbnail']) && !empty($input['thumbnail'])) ? 1 : 0;
 		
 		//error_log(' $valid ' . var_export($valid, true));		
 		return $valid;

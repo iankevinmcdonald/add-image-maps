@@ -27,6 +27,7 @@
         // Load the options into variables for some reason
         $srcset = $options['srcset'];
 		$do_header = $options['header'];
+		$do_thumbnail = $options['thumbnail'];
 		$do_content = $options['content'];
 
         settings_fields($this->plugin_name);
@@ -53,6 +54,14 @@
             <span><?php esc_attr_e('Add image maps on header images', $this->plugin_name); ?></span>
         </label>
     </fieldset>	
+	
+    <fieldset>
+        <legend class="screen-reader-text"><span><?php _e('Add image maps on featured images', $this->plugin_name); ?></span></legend>
+        <label for="<?php echo $this->plugin_name; ?>-thumbnail">
+            <input type="checkbox" id="<?php echo $this->plugin_name; ?>-thumbnail" name="<?php echo $this->plugin_name; ?>[thumbnail]" value="1" <?php checked( $do_thumbnail, 1 ); ?> />
+            <span><?php esc_attr_e('Add image maps on featured images', $this->plugin_name); ?></span>
+        </label>
+    </fieldset>		
 
 	<fieldset>
         <legend class="screen-reader-text"><span><?php _e('Add image maps on content images', $this->plugin_name); ?></span></legend>

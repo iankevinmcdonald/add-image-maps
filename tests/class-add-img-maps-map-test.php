@@ -36,7 +36,10 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 				"circle" , array(25,18,9.2), 'Test circle', 'http://t.co/',
 				"poly" , array(25,0,45,5,35,15), 'Test polygon', 'http://t.co/'
 		); 
-		$element = $map->get_HTML( 314 );
+		$elementId = Add_Img_Maps_Map::get_map_id( 314 );
+		$this->assertRegExp( '/314-full/' , $elementId );
+		$attrs = array( 'id' => $elementId );
+		$element = $map->get_HTML( $attrs );
 		$this->assertRegExp( '/<map .+<\/map>/' , $element );
 		$this->assertRegExp( '/314-full/' , $element );
 	}
@@ -89,7 +92,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 		try {
 			$formInput =  array(
 						0 => array(
-							'shape' => 'notashape',
+							'shape' => 'notashape', //should be rejected without throwing error
 							'href' => 'http://example.org/',
 							'alt' => 'Random text',
 							0 => array(
@@ -136,7 +139,10 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 						)
 				);
 			$map1 = new Add_Img_Maps_Map ( $formInput );
-			$element = $map1->get_HTML( 'addimgmaps' );
+			$id = Add_Img_Maps_Map::get_map_id ( 1 );
+			$this->assertTrue( is_string( $id ) );
+			$element = $map1->get_HTML( 
+				array( 'id' => $id ) ) ;
 			$this->assertRegExp( '/98/' , $element );
 			$this->assertRegExp( '/real test/' , $element );
 			$this->assertNotRegExp( '/328/', $element); // The fake shape should have been rejected
@@ -201,7 +207,9 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 					)
 				);
 		$map1 = new Add_Img_Maps_Map ( $formInput );
-		$element = $map->get_HTML( 'addimgmaps' );
+		$element = $map->get_HTML( 
+			array( 'id' => $map::get_map_id( 1 ) ) 
+		);
 		$this->assertEmpty( $map1);
 	}
 	
