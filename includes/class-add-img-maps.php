@@ -201,7 +201,7 @@ class Add_Img_Maps {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 //		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
-/* Not using those hooks.
+// Not using those hooks.
 
 		if ( $plugin_public->add_img_maps_options['content'] ) {
 			// Takes 3 arguments.
@@ -220,7 +220,7 @@ class Add_Img_Maps {
 
 		$this->loader->add_action('the_content', $plugin_public, 'content_usemap');
 			
-*/		
+/**/		
 		$this->loader->add_action('wp_footer', $plugin_public, 'append_maps');
 		
 	}

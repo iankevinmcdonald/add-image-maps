@@ -3,12 +3,14 @@
 
 	 $( attach_maps ); // $() is called when the DOM is ready.	
 	
+	var option_srcset;
 	
 	function attach_maps () {
 		// For each map, find the image(s), attach the map, and (optionally) remove their responsiveness
 	
 		// Maps
 		var maps = $('span#addimgmaps-maps map');
+		option_srcset = $('span#addimgmaps-maps').data('option-srcset');
 		
 		console.log( maps );
 		
@@ -34,10 +36,15 @@
 		console.assert( image, 'Not found image.');
 		
 		image.attr('usemap', map.name );
+		image.unwrap('a'); // Remove any immediate parent anchor tag. 
 		
 		// FOR HANDLE_SIZES, choose an image with the right width
 		
-		//TODO remove srcset & interactive width
+		// Optionally turn off that images' responsiveness
+		// (it doesn't mix well with an un-responsive imagemap)
+		if ( option_srcset == 'off' ) {
+			image.removeAttr('srcset sizes');
+		}
 	
 	}
 	

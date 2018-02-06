@@ -235,17 +235,17 @@ $size
 		
 		if ( $this->add_img_maps_options['thumbnail'] ) {
 			// Includes check for 'has feature support'
-			$thumbnail = get_the_post_thumbnail();
-			if ( $thumbnail ) {
-				if ( isset( $images[ $thumbnail->ID ] )) {
-					array_push( $images[ $header_image->attachment_id ]['from'], 'thumbnail' );
+			$thumbnail_id = get_post_thumbnail_id();
+			if ( $thumbnail_id ) {
+				if ( isset( $images[ $thumbnail_id ] )) {
+					array_push( $images[ $thumbnail_id ]['from'], 'thumbnail' );
 				} else { //new image, add
-					$images[ $thumbnail->ID ] = array (
-						'image' => $thumbnail,
+					$images[ $thumbnail_id ] = array (
+						'image' => get_post($thumbnail_id),
 						'from' => 'thumbnail',
 					);
 				}
-				error_log('Added featured image: ' . $thumbnail->ID );
+				error_log('Added featured image: ' . $thumbnail_id );
 			}
 			
 		}
@@ -284,6 +284,10 @@ $size
 		$images_with_maps = array();
 		
 		foreach( $images as $ID => $image ) {
+			if ( ! is_object( $image['image'] ) ) {
+				throw new Exception("Expected image to be object. Is not: " . 
+					print_r ( $image['image'], true ));
+			}
 			// Does it have a map?
 			$maps_metadata = get_post_meta( $image['image']->ID, '_add_img_maps', true );
 			if ( $maps_metadata ) {
@@ -299,7 +303,9 @@ $size
 		}
 		error_log( 'images_with_maps: ' . print_r($images_with_maps, true) );
 		
-		?><span id='addimgmaps-maps'><?php
+		// The srcset option is either 'run' [responsive images] or 'off'
+		
+		?><span id='addimgmaps-maps' data-option-srcset='<?php echo $this->add_img_maps_options['srcset']; ?>' ><?php
 		
 		foreach( $images_with_maps as $ID => $image ) {
 			// for HANDLE_SIZES, will need to fetch image metadata, create
