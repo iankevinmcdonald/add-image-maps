@@ -41,6 +41,16 @@ class Add_Img_Maps_Public {
 	private $version;
 
 	/**
+	 * A tracker of the images on the current page.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      array    $images   List of image post objects
+	 */
+
+	private $images = array();
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -195,14 +205,12 @@ $size
 	 * - add the image ID & size to the 'usemap'
 	 *
 	 */
-	public function append_maps() {
+	public function list_images($post) {
 		error_log('Add_Img_Maps_Public->append_maps()');
-		global $post;
+		//global $post;
 		
 		// Which ones are we processing?
 		// [ from => [ content /header/thumbnail ], image => $image ]
-		
-		$images = array ();
 		
 		if ( $this->add_img_maps_options['content'] ) {
 			$children = 			
@@ -216,41 +224,43 @@ $size
 						)
 				)
 			;
-			$images = array_map ( 
-				function( $v ) {
-					return array(
+			
+			foreach ( $children as $child_image ) {
+				if ( isset( $this->images[ $child_image ->ID ] )) {
+					array_push( $this->images[ $child_image->ID ]['from'], 'content' );
+				} else { //new image, add
+					$this->images[ $child_image->ID ] = array (
+						'image' => $child_image,
 						'from' => array('content'),
-						'image' => $v,
 					);
-				},
-				$children
-			);
+				}
 
-			foreach ( $images as $image ) {
-				error_log('Found image ID ' . $image['image']->ID . ' "' . $image['image']->post_title . '"' );
+				error_log('Found image ID ' . $child_image->ID . ' "' . $child_image->post_title . '"' );
+			
 			}
-		
-		}
-		
-		
+		} // end if content option set
+				
 		if ( $this->add_img_maps_options['thumbnail'] ) {
 			// Includes check for 'has feature support'
 			$thumbnail_id = get_post_thumbnail_id();
 			if ( $thumbnail_id ) {
-				if ( isset( $images[ $thumbnail_id ] )) {
-					array_push( $images[ $thumbnail_id ]['from'], 'thumbnail' );
+				if ( isset( $this->images[ $thumbnail_id ] )) {
+					array_push( $this->images[ $thumbnail_id ]['from'], 'thumbnail' );
 				} else { //new image, add
-					$images[ $thumbnail_id ] = array (
+					$this->images[ $thumbnail_id ] = array (
 						'image' => get_post($thumbnail_id),
-						'from' => 'thumbnail',
+						'from' => array('thumbnail'),
 					);
 				}
 				error_log('Added featured image: ' . $thumbnail_id );
 			}
 			
 		}
+	
+	}
 
 		
+public function append_maps() {		
 		//if 'header' is turned on.
 		/* Do this last because it passes not an image object, but a 'StdClass' object
 		 * with properties: url, url_thumbnail, width, height, attachment_id 
@@ -262,19 +272,19 @@ $size
 			if ( $header_image ) {
 				$header_image->ID = $header_image->attachment_id ;
 				// In unlikely situation of being both header & content
-				if ( isset( $images[ $header_image->attachment_id ] )) {
-					array_push( $images[ $header_image->attachment_id ]['from'], 'header' );
+				if ( isset( $this->images[ $header_image->attachment_id ] )) {
+					array_push( $this->images[ $header_image->attachment_id ]['from'], 'header' );
 				} else { //new image, add
-					$images[ $header_image->ID ] = array (
+					$this->images[ $header_image->ID ] = array (
 						'image' => $header_image,
-						'from' => 'header',
+						'from' => array('header'),
 					);
 				}
 				error_log('Head image ID=' . $header_image->attachment_id);
 			}
 		}
 				
-		error_log( 'images: ' . print_r($images, true) );
+//		error_log( 'images: ' . print_r($this->images, true) );
 		
 		
 		// Of course, this doesn't tell me which size of the page is included in the page. 
@@ -283,7 +293,7 @@ $size
 		//Include debug comment if debug level turned on?
 		$images_with_maps = array();
 		
-		foreach( $images as $ID => $image ) {
+		foreach( $this->images as $ID => $image ) {
 			if ( ! is_object( $image['image'] ) ) {
 				throw new Exception("Expected image to be object. Is not: " . 
 					print_r ( $image['image'], true ));

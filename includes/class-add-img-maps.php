@@ -201,7 +201,7 @@ class Add_Img_Maps {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 //		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
-// Not using those hooks.
+/*/ Not using those hooks.
 
 		if ( $plugin_public->add_img_maps_options['content'] ) {
 			// Takes 3 arguments.
@@ -217,10 +217,10 @@ class Add_Img_Maps {
 			// and hence be trading the overhead of adding a superflous filter for the overhead of 
 			// loading an extra file. Besides, I don't know how many header plugins work with this.
 			}
-
-		$this->loader->add_action('the_content', $plugin_public, 'content_usemap');
+*/
+		$this->loader->add_action('the_post', $plugin_public, 'list_images');
 			
-/**/		
+		
 		$this->loader->add_action('wp_footer', $plugin_public, 'append_maps');
 		
 	}
