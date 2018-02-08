@@ -1,23 +1,12 @@
 <?php
 
-/**
- * The admin-specific functionality of the plugin.
- *
- * @link       mcdonald.me.uk
- * @since      1.0.0
- *
- * @package    Add_Img_Maps
- * @subpackage Add_Img_Maps/admin
- */
 
 /**
- * The admin-specific functionality of the plugin.
+ * The overarching admin functionality.
  *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the admin-specific stylesheet and JavaScript.
+ * Defines the plugin name, version, options, and hooks.
  *
- * @package    Add_Img_Maps
- * @subpackage Add_Img_Maps/admin
+ * @package Add_Img_Maps/admin
  * @author     Ian McDonald <ian@mcdonald.me.uk>
  */
 class Add_Img_Maps_Admin {
@@ -120,22 +109,18 @@ class Add_Img_Maps_Admin {
 	public function enqueue_scripts() {
 
 		/**
-		 * This function is provided for demonstration purposes only.
+		 * The only admin-specific Javascript deals with the image map metadata
+		 * box. And as the decision on whether to load it is exactly the same as
+		 * the decision to load the metadata box CSS, the script is queued by
+		 * enqueue_styles. 
+		 * 
+		 * This function remains because I expect I may be loading more JS with
+		 * advances in functionality.
 		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Add_Img_Maps_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Add_Img_Maps_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
 		 */
-		 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/add-img-maps-admin.js', array( 'jquery' ), $this->version, false );
-		// Image MetaDataBox JS must be enqueued. TODO
 
-		// Accordion.JS is needed to run the Accordion - see https://core.trac.wordpress.org/ticket/23449
-		wp_enqueue_script( $this->plugin_name, admin_url( 'js/accordion.js' ), array( ), $this->version, false );
+		 // Accordion.JS would be needed to run the Accordion - see https://core.trac.wordpress.org/ticket/23449
+		// wp_enqueue_script( $this->plugin_name, admin_url( 'js/accordion.js' ), array( ), $this->version, false );
 		
 		
 
@@ -151,8 +136,6 @@ class Add_Img_Maps_Admin {
 
     /*
      * Add a settings page for this plugin to the Settings menu.
-     *
-     * Alternatives at Administration Menus: http://codex.wordpress.org/Administration_Menus
      *
      */
     add_options_page( 'Add Image Maps options', 'Add Image Maps', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page')

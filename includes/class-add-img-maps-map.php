@@ -1,45 +1,70 @@
 <?php
 
 /**
- * The class of objects representing actual HTML imagemaps
+ * The class of objects representing actual HTML imagemaps.
  *
+ * The overall data structure is described in 'data_formats.md', in the plugin root.
+ * This class deals with creating them (from arrays and input fields), storing them,
+ * and displaying them as HTML.
  *
- * @link       mcdonald.me.uk
+ * The data structure can potentially store multiple per image (for different sizes)
+ * but currently only one is implemented.
+ * 
  * @author     Ian McDonald <ian@mcdonald.me.uk>
  * @since      1.0.0
  *
- * @package    Add_Img_Maps
- * @subpackage Add_Img_Maps/includes
+ * @package Add_Img_Maps/includes
  */
  
 class Add_Img_Maps_Map {
 	/**
-	* Represent a single HTML image map 
-	* Following https://html.spec.whatwg.org/multipage/image-maps.html
+	* @link https://html.spec.whatwg.org/multipage/image-maps.html
 	* 
-	* A WP image may possess several image maps - a main one, and one per size
 	*/
 
-	/**
-	 * The only object setting is an array of the areas.
+	/*
+	 * Pseudo-constant reference arrays for use in functions.
 	 *
+ 	 * @var	array	COORD_KEYS	The suffixes used for co-ordinates in the input names (x,y,r)
+	 * @var	array	VALID_SHAPES	Valid values for HTML map:shape attributes.
+	 * @var array	AREA_KEYS	The members of the array representing each area.
+	 * @access protected
 	 */
-	protected $areas = array ();
+	
 	static protected $COORD_KEYS = array( 'x', 'y', 'r' ); // PHP<5.7 rejects array constants
 	static protected $VALID_SHAPES = array( "rect", "circle", "poly" );
 	static protected $AREA_KEYS = array( "shape", "href", "alt", "coords");
-	
+
 	
 	/**
-	 * new Add_Img_Maps_Map ( 'rect|circle|poly', array( *co-ordinates*), 'Alt text', link ... )
-     * return - an image map object or false
+	 * The only object setting is an array of the areas.
+	 *
+	 * @var	array	$areas	The areas of the map.
+	 */
+	protected $areas = array ();
+	
+	/**
+	 * Create a new Map object. There are three possible input formats:
+	 *
+	 * **A list of array attributes**
+	 * @param	string	$shape	A valid 'shape' element value (rect¦poly¦circle).
+	 * @param	array	$coords	A list of co-ordinates
+	 * @param	string	$alt	The alt attribute for the area
+	 * @param	string	$href	The href attribute for the area
+	 * @param	(*and repeat these 4 arguments for each map*)
+	 *
+	 * **An associative array reflecting the HTML element structure**
+	 * @param	type	array	
+	 * @type `[ [ shape=>string, alt=>string, href=>string, coords=>[ ] ], ... ]`
+	 * 
+	 * **An associative array that mirrors the input form**
+	 * @param	type	array
+	 * @type `[ shape=> ", alt=> ", href=> ", 0, 1 ,2...=>[ x=>int, y=>int, ?z=>int ] ]
+	 * @see Add_Img_Maps_Metabox->save for how the input form becomes an array
+	 *
+	 * @return object	Add_Img_Maps_Map
 	 */
 
-	/* Or it takes an associative array made from input vars.
-	 * 
-	 * $arg1[$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
-	 */
-	 
 	public function __construct () {
 		
 		/* Number of arguments should be even, or it takes a hashed object */
@@ -48,9 +73,10 @@ class Add_Img_Maps_Map {
 		$num_args = count($args);
 		
 		if ( $num_args == 1 and is_array( $args[0]  ) ) {
-			// If it's an authentic object array, just set it.
-			
-			if ( array_key_exists( 'areas' , $args[0] )  /*and array_key_exists( 'shape', $args[0]['areas'][0] ) */ ) {
+		
+			// If it's an associative array following the HTML map element, just copy it.			
+			if ( array_key_exists( 'areas' , $args[0] )   
+			) {
 				if ( ! array_key_exists(  'shape', $args[0]['areas'][0] ) ) {
 					throw new Exception ( 'Cannot detect "shape" key in first map: ' . print_r($args[0], true) );
 				}
@@ -58,55 +84,60 @@ class Add_Img_Maps_Map {
 				$this->_validate(); // Throws error if bad.
 				return $this;
 				
-	//			An associative array of form input vars, of form:
-	// [size][$areaNum] = [ shape=>$shape, alt=>$alt, href=>$href, 0,1,2,3...=>[ $x, $y] ]
+			/**
+			 * If an associative array representing input variables then we just need
+			 * to check it and change the co-ordinates from the 'leaves' of an associate
+			 * array to a list of numbers. 
+			 *
+			 * This is not guaranteed to maintain the ordering of areas, but this matters not.
+			 */
 			} elseif (	array_key_exists( 0, array_values($args[0] ) ) ) { 
-				error_log('Interpreting values as form input: ' . print_r( $args[0], true ) );
-
-		// and	array_key_exists( 'shape', array_shift(array_values($args[0] ) ) ) 
-				// Let's reshape into an object array by rearranging the coords.
-				
+			
+				// error_log('Interpreting values as form input: ' . print_r( $args[0], true ) );
 				$areasList = array();
-				
-				// This might renumber the areas, but that's not desparately important
+
+				// For each area
 				foreach( $args[0] as $inputArea ) {
 				
-					error_log('$inputArea=' . print_r($inputArea, true));
+					//error_log('$inputArea=' . print_r($inputArea, true));
 					
 					// Get all the co-ordinates (and typecast them to int, as a defence)					
 					$coords = array();
-					// Keys are x, y, and r in order.
+
+					// Fetch circle co-ordinates (x, y, and r) (order matters)
 					foreach ( self::$COORD_KEYS as $key ) {
 						if (isset($inputArea[$key]) ) {
 							array_push( $coords, (integer) $inputArea[$key] );
 						}
 					}
-					// For every numbered member in order
-					
+
+					// Co-ordinates for rectangles & polygons come in pairs,
+					// and are the only things in the input element to have numeric keys.
 					$pairs = array_filter( 
 									array_keys( $inputArea ), 'is_numeric' );
 					
+					// They are meant to be stored as x/y arrays, and it should be a fatal error otherwise.
 					if ( gettype( $pairs ) != 'array' ) {
 						throw new Exception ('$pairs should be array but is ' . print_r( $pairs, true) . 
 						' for input ' . print_r( $inputArea, true ) );
 					}					
 					
+					// Ensure that the co-ordinate pairs are in the right order.
 					sort( $pairs, SORT_NUMERIC );
 					
 //					error_log('$pairs = ' . print_r($pairs, true));
 					
-					if ( gettype( $pairs) != 'array' ) {
-						throw new Exception ('$pairs should be array but is ' . print_r( $pairs, true) . 
-						' for input ' . print_r( $inputArea, true ) );
-					}
-					
 					foreach ($pairs as $pair) {
+						// Expecting a form of array(x=>integer, y=>integer)
 						if ( ! isset( $inputArea[$pair]['x']) ) {
 							throw new Exception ("Missing x co-ordinate for point pair=$pair in inputArea '" . print_r( $inputArea, true ) );
 						}
+						
+						// Add the co-ordinates
 						array_push( $coords, (integer) $inputArea[$pair]['x'], (integer) $inputArea[$pair]['y'] );
 					}
 					
+					// Validate the input area
 					if ( ! in_array( 
 						$inputArea['shape'],
 						self::$VALID_SHAPES )
@@ -115,11 +146,12 @@ class Add_Img_Maps_Map {
 						continue;
 					}
 					
+					// Validate the co-ordinate count
 					if ( ! $this->_coords_apt_for_shape( count($coords), $inputArea['shape'] ) ) {
 						throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
 					}					
 					
-					// Many of the values are as input
+					// Create the area
 					$this_area = array(
 						'shape' => $inputArea['shape'],
 						'coords' => $coords,
@@ -138,20 +170,27 @@ class Add_Img_Maps_Map {
 			} else {
 				throw new Exception('Tried to create new image map from invalid array ' . print_r($args, true) );
 			}
+		
+		// Other first arguments are unexpected and throw fatal errors.
 		} else if ( gettype( $args[0] ) != 'string' and gettype( $args[0] ) != 'array' ) {
 			throw new Exception( "num_args=$num_args args submitted, with unrecognised type first. Args=" . print_r($args, true ) );
-			
+		
+		// If this is an argument list, it must have the right number of arguments.
 		} else if ( $num_args == 0 or ( $num_args % 4) != 0) {
 			throw new Exception('Tried to create new image map with arguments not in fours :' . 
 				print_r($args, true) );
+
+		// So precoess the list.
 		} else {
 					
 			while ( count($args) ) {
-				// The first part of each pair is the area type 
+
+
+				// The first part of each pair is the area shape 
 				$shape = array_shift($args);
-				// This should be automated - no need to play nice.
-				// $shape = strtolower($shape);
-				if ($shape != 'rect' && $shape != 'circle' && $shape != 'poly') {
+
+				// Check the shape
+				if ( ! in_array( $shape, self::$VALID_SHAPES ) ) {
 					throw new Exception("Tried to create new image map with unrecognised shape $shape");
 				}
 				
@@ -161,7 +200,7 @@ class Add_Img_Maps_Map {
 					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
 				}
 				
-				// Final part is the Alt text. Pre-escaped /
+				// Final parts are the Alt text & link. Pre-escaped /
 				$alt = sanitize_text_field( array_shift($args));
 				
 				$href = esc_url(array_shift($args));
@@ -178,6 +217,15 @@ class Add_Img_Maps_Map {
 			return $this;
 		} //input as list if quartets
 	}
+
+/**
+ * Check that the list of co-ordinates is an apt length for the shape.
+ *
+ * @access protected
+ * @var integer	$num_coords	The number of co-ordinates
+ * @var	string	$shape		The shape of the area 
+ * @return boolean
+ */
 	
 	protected function _coords_apt_for_shape( $num_coords, $shape ) {
 		return (
@@ -188,16 +236,19 @@ class Add_Img_Maps_Map {
 		) ? false : true;
 	}
 	
-	static $IMAGE_SIZE_ABBREVIATIONS = array (
-		'full' => 'full',
-		'full image' => 'full',
-		'thumbnail' => 'thmb',
-		'medium' => 'med',
-		'medium_large' => 'mlg',
-		'large' => 'lrg',
-	);
-	
-
+	/**
+	 *
+	 * Return the id attribute for an HTML map element.
+	 *
+	 * This is formed by a hyphen-separated list, broadest term first:
+	 * The plugin tag, the image id, and (for when sizes are handled) its size.
+	 *
+	 * @access public
+	 * @var	integer	$image_id	The wordpress id number for the image to which it will be attached.
+	 * @var string	$image_size	The wordpress size of the image to which it is attached
+	 * @return string	element id
+	 
+	 */
 
 	public static function get_map_id ( $image_id, $image_size='full' ) {
 
@@ -210,20 +261,31 @@ class Add_Img_Maps_Map {
 			);
 	
 		return sprintf("%s-%s-%s",
-			Add_Img_Maps::PLUGIN_NAME,
+			Add_Img_Maps::name(),
 			$image_id,
 			$image_size );
 	
 	}
 	
-	
+	/**
+	 * Return the HTML of the image map
+	 *
+	 * The Map object only contains information about the map itself. But some
+	 * extra information will be needed by JS to attach it to the right image,
+	 * and this is passed as an associative array of attributes.
+	 *
+	 * @access public
+	 * @var		array	$attrs	An associative array of attributes for the element to display.
+	 * @type					An 'id' element is obligatory (and reduplicated as 'name')
+	 * @return	string	HTML of the MAP element
+	 */
+	 
 	public function get_html (  $attrs ) {
-		// image_size defaults to 'full'
-		
+	
+		// Confirm valid input; invalid should be a fatal error.
 		if ( is_null ($attrs) or ! isset($attrs['id'] ) ) {
 			throw new Exception ('Add_Img_Maps_Map->get_html without set attrs');
 		}
-
 		if ( ! count( $this->areas ) ) {
 			throw new Exception ('get_html called on Map with no areas');
 		}
@@ -233,14 +295,14 @@ class Add_Img_Maps_Map {
 			$attrs['name'] = $attrs['id'];
 		}
 		
+		/**
+		 * Closure to turn an area into an element.
+		 *
+		 * @var		array	$this_area	An associative array representing a single area.
+		 * @return	string	The Area element
+		 */
 		$areaElement = function( $this_area ) {
-				if ( ! isset( $this_area['shape'] ) or 
-					! isset( $this_area['coords'] ) or
-					! isset( $this_area['alt'] ) 
-				) {
-					throw new Exception('get_html called on Map with area not fully defined');
-				}
-		
+						
 				return "<area shape='$this_area[shape]' " .
 					'coords="' . 
 					join(', ', $this_area['coords'] ) .
@@ -251,9 +313,7 @@ class Add_Img_Maps_Map {
 		};
 	
 		// Attributes were sanitized & escaped when entered.
-		
-		
-		
+		// Put the HTML element together.
 		return "<map " .
 			implode( ' ', array_map(
 				function($k, $v) { return $k . '="' . esc_attr( $v ) . '"'; },
@@ -264,13 +324,12 @@ class Add_Img_Maps_Map {
 			'</map>'
 		;
 	}
-			
-			
+
 	/**
+	 * Returns the object as an associative array.
 	 *
-	 *
-	 *
-	 * @since	1.0.0
+	 * This is necessary to turn its hidden fields into a JSON string.
+	 * @return	array	An associative array with (currently) just an areas array.
 	 */
 
 	public function as_array () {
@@ -281,7 +340,14 @@ class Add_Img_Maps_Map {
 	}
 
 	/**
-	 * Throw error if the object values aren't as expected.
+	 * Throw an error if the object values aren't as expected.
+	 *
+	 * Usually, if the object doesn't validate, it *should* throw a fatal
+	 * error because that means something has gone seriously wrong elsewhere
+	 * in the plugin and you should deactivate it.
+	 *
+	 * @access protected
+	 * @return none
 	 */
 	
 	protected function _validate() {
@@ -312,6 +378,11 @@ class Add_Img_Maps_Map {
 	
 	/**
 	 * Return whether or not the object is valid.
+	 *
+	 * This is for when you don't necessarily want to risk a fatal error.
+	 *
+	 * @return bool
+	 * @access public
 	 */
 	public function is_valid() {
 		try {
@@ -322,60 +393,5 @@ class Add_Img_Maps_Map {
 			return false;
 		}
 	}
-	
-	/**
-	 * Define the core functionality of the plugin.
-	 *
-	 * Set the plugin name and the plugin version that can be used throughout the plugin.
-	 * Load the dependencies, define the locale, and set the hooks for the admin area and
-	 * the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function __CORE_BOILERPLATE_construct() {
-		if ( defined( 'PLUGIN_NAME_VERSION' ) ) {
-			$this->version = PLUGIN_NAME_VERSION;
-		} else {
-			$this->version = '1.0.0';
-		}
-		$this->plugin_name = 'add-img-maps';
-
-		$this->load_dependencies();
-		$this->set_locale();
-		$this->define_admin_hooks();
-		$this->define_public_hooks();
-
-	}
-
-	private function _NOT_NEEDED_load_dependencies() {
-
-		/**
-		 * The class responsible for orchestrating the actions and filters of the
-		 * core plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-add-img-maps-loader.php';
-
-		/**
-		 * The class responsible for defining internationalization functionality
-		 * of the plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-add-img-maps-i18n.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-add-img-maps-admin.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-add-img-maps-public.php';
-
-		$this->loader = new Add_Img_Maps_Loader();
-
-	}
-
-
 
 }

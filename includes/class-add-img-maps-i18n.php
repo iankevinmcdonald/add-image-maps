@@ -1,19 +1,6 @@
 <?php
 
 /**
- * Define the internationalization functionality
- *
- * Loads and defines the internationalization files for this plugin
- * so that it is ready for translation.
- *
- * @link       mcdonald.me.uk
- * @since      1.0.0
- *
- * @package    Add_Img_Maps
- * @subpackage Add_Img_Maps/includes
- */
-
-/**
  * Define the internationalization functionality.
  *
  * Loads and defines the internationalization files for this plugin
@@ -35,7 +22,7 @@ class Add_Img_Maps_i18n {
 	public function load_plugin_textdomain() {
 
 		load_plugin_textdomain(
-			'add-img-maps',
+			Add_Img_Maps::name(),
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);

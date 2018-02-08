@@ -1,12 +1,22 @@
 ## Add_Img_Maps internal data formats
 
-Why did I have two different formats, one for the web form and one for the data
-object? The reason is that every field in the input form needed to have its own
-name, whereas the &lt;map&gt; elements simply list the co-ordinates together.
-(And I based the map element on those.)
+### Why two different formats, one for the web form input and one for the internal representation of the map object?
 
-So the form needed to separate out the co-ordinates.
+Every field in the input form needed to have its own
+name, whereas the data object is based on the &lt;map&gt; elements, which simply list the co-ordinates together.
 
+So the form needed to give every single co-ordinate its own key.
+
+#### The Add_Img_Maps Map Object
+
+The internal Map object itself has a different format, based on (the HTML map element)[https://html.spec.whatwg.org/multipage/image-maps.html#the-map-element].
+
+* areas
+  * shape
+  * href
+  * alt
+  * coords *list of co-ordinates in order x, y, r*
+  
 ### The Input Form
 
 The input form names (and ids) are a set of '-' separated associative array keys.
@@ -33,18 +43,3 @@ There are also some special values
 The metabox initially loads existing maps as empty fieldset elements, with
 a data-map attribute containing a JSON object for the map. It is initalised
 when the control button is pressed.
-
-#### The Object
-
-The internal Map object itself has a different format, based on the HTML map element,
-at it is this which is stored in JSON.
-
-* areas
-  * shape
-  * href
-  * alt
-  * coords *list of co-ordinates in order x, y, r*
-
-#### HTML
-
-The HTML map element is documented at 

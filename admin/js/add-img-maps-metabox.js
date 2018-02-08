@@ -1,9 +1,22 @@
-﻿var addImgMapsClosure = function($) {
+﻿/**
+ * A closure containing the functions the Add_Img_Maps metadata box.
+ *
+ * Passed jQuery as an argument to be able to locally refer to it as $.
+ * (jQuery elements are prefixed with 'jQ_').
+ *
+ * @package Add_Img_Maps/admin
+ * @since 0.1.0
+ * @returns Array with pseudo-public functions as values.
+ */
+
+var addImgMapsClosure = function($) {
 	'use strict';
 	
-	var pluginName = "addimgmaps";
-	var HANDLE_SIZES = false; // Needs to be in root file? Not used at present.
-	var size_dimensions = { };
+	var pluginClassName = "add_img_maps", // Not hyphenated because I use hyphens as a separator
+		pluginIdName = "addimgmaps", //shorter used for Ids because they get very long
+		ADD_IMG_MAPS_HANDLE_SIZES = false, // Not used at present.
+		
+		size_dimensions = { }; // Keep track of sizes (for _HANDLE_SIZES)
 
 	/**
 	 * Gets the attachment width for that imageSize.
@@ -14,7 +27,7 @@
 	 * @returns {int} width in pixels
 	 */	
 	function getAttachmentWidth( imageSize ) {
-		if ( ! imageSize ) {
+		if ( undefined === imageSize ) {
 			imageSize = 'full';
 		}
 		return size_dimensions[imageSize].width;
@@ -29,7 +42,7 @@
 	 * @returns {int} width in pixels
 	 */	
 	function getAttachmentHeight( imageSize ) {
-		if ( ! imageSize ) {
+		if ( undefined === imageSize ) {
 			imageSize = 'full';
 		}
 		return size_dimensions[imageSize].height;
@@ -59,19 +72,19 @@
 	 * @returns   {none}
 	 */			
 	function init( ){
-		// Fail gracefully
+		// Fail gracefully if unsupported
 		if ( ! dependenciesSatisfied ) {
-			$( '#' + pluginName + '-metabox > .inside').get().innerHTML(
+			$( '#' + pluginIdName + '-metabox > .inside').get().innerHTML(
 				__('Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin','add-img-maps')
 			);
 			return;
 		}
 			
-		// Put the canvas over the image	
+		// Put the canvas over the attachment pages' main image	
 		var jQ_attachmentImage = $( '.wp_attachment_image img');
 		console.assert(jQ_attachmentImage.length == 1, 'Problem with jQ_attachmentImage');
 		
-		var canvasElement = document.getElementById( pluginName + '-canvas' );
+		var canvasElement = document.getElementById( pluginIdName + '-canvas' );
 		
 		// Move the canvas element to be next to the image in the DOM
 		jQ_attachmentImage.get(0).parentElement.appendChild( canvasElement );
@@ -81,40 +94,46 @@
 		canvasElement.height = jQ_attachmentImage[0].height;
 		/* Although the img element itself has no margin, its parent <P> element does, 
 		 * and so I move the canvasElement down by as many pixels as the <P> top offset to compensate.
+		 * (offsetTop is a number; style.top is a CSS element and needs the 'px' suffix.)
 		 */
 		canvasElement.style.top = jQ_attachmentImage[0].parentElement.offsetTop + 'px';
 		
 		/*
 		 * Import the size_dimensions hash.
 		 */
-		 size_dimensions = $('#addimgmaps-ctrlmaps').data('size_dimensions');
+		 size_dimensions = $('#' + pluginIdName + '-ctrlmaps').data('size_dimensions');
 		 console.assert( typeof (size_dimensions) == 'object', size_dimensions, typeof(size_dimensions) );
 		
 		
 		// Initialise any 'create map' buttons
-		var createMapButtons = $( '#' + pluginName + '-cr' );
+		var createMapButtons = $( '#' + pluginIdName + '-cr' );
 		createMapButtons.click( function() {
+			/**
+			 * (anonymous function) Set up form for map for image size.
+			 *
+			 * @access Closure
+			 */
+			// BACKLLOG: Let user choose between sizes in a pulldown menu
 			var image_size;
 			if ( $(this).data('imagesize') ) {
 				image_size = $(this).data('imagesize');
 			} else {
-				// In version 1.1, will also be able to handle a pulldown list.
 				throw "Cannot find imagesize data attribute.";
 			}
+			// Set up the map for this image size.
 			setupMap( image_size ); //Do I pass the target?
-			//This button will be hidden as part of the *-ctrl div, not individually.
-			//$(this).hide();
 		});
 		
 		// Initialise any 'edit map' buttons.
-		var editMapButtons = $( '.' + pluginName + '-ed' ); //ID includes size
+		var editMapButtons = $( '.' + pluginClassName + '-ed' ); //button includes size on attr
 		editMapButtons.click( function() {
+			/**
+			 * (anonymos function) to open existing map for editing
+			 *
+			 * @access Closure
+			 */
 			var image_size = $(this).data('imagesize');
-/*			var fieldSet = $( 'fieldset#' + pluginName + '-' + image_size );
-			var JSON_map = fieldSet.data('map');
-			// NB also extract from data-map & Pass 
-			alert('TODO implement edit');
-*/			console.assert( image_size );
+			console.assert( image_size );
 			//setupMap will open either new or saved map & call openEditMap to make visible.
 			setupMap ( image_size ); 
 		} );
@@ -124,10 +143,15 @@
 	 * Hides the control panel, unhides the editing area, dims the image, &c.
 	 *
 	 * Other maintenance includes removing the 'unchanged' flag, if it exists, 
-	 * and redrawing the map.
+	 * redrawing the map. It also switches the display from showing the 
+	 * control fields, hiding the map fields, and hiding the canvas into the
+	 * 'editing' state where the main image is dimmed, the canvas appears 
+	 * over it, the 'control' form elements are hidden, and the map editing
+	 * form elements appear.
 	 * 
 	 * @since      1.0
-	 * @access    private
+	 * @access   closure
+	 * @var		string	imageSize
 	 * @returns {none}		
 	 */		
 	
@@ -138,12 +162,12 @@
 		$( 'img.thumbnail' )[0].style.opacity = 0.6; 
 
 		// Show addimgmaps-<size> fieldset
-		var jQ_thisFieldSet = $( 'fieldset#addimgmaps-' + imageSize );
+		var jQ_thisFieldSet = $( 'fieldset#' + pluginIdName + '-' + imageSize );
 		jQ_thisFieldSet.show();
 		drawImageMap( jQ_thisFieldSet.get(0) );
 
-		// Unset 'unchanged' flag (if any)
-		$( '#' + pluginName + '-' + imageSize + '-unchanged').val(0);
+		// Unset 'unchanged' flag (if any) to show that it's changed now.
+		$( '#' + pluginIdName + '-' + imageSize + '-unchanged').val(0);
 		
 		// ensure the Canvas is visible
 		$( 'canvas#addimgmaps-canvas' ).show();
@@ -154,6 +178,7 @@
 	 *
 	 * @since      1.0
 	 * @access    private
+	 * @var		string	imageSize
 	 * @returns {none}		
 	 */		
 	
@@ -182,31 +207,36 @@
 	 */		
 	function setupMap( imageSize ) {
 
+		if ( undefined === imageSize ) {
+			throw 'Called setupMap without imageSize';
+		}
+	
 		// Find Metabox element for imageSize - part of mapInit
-		var mapForImageSize = $( 'fieldset#' + pluginName + "-" + imageSize ).get(0);
+		var mapForImageSize = $( 'fieldset#' + pluginIdName + "-" + imageSize ).get(0);
+		var savedMap = false;
+
 		// Check that it's a fieldset
-		console.assert( typeof (mapForImageSize) == 'object', 'Failed to get element ' + pluginName + '-' + imageSize );
+		console.assert( typeof (mapForImageSize) == 'object', 'Failed to get element ' + pluginIdName + '-' + imageSize );
 		console.assert( mapForImageSize.tagName == "FIELDSET", mapForImageSize);
 
-		var savedMap = false;
 		
 		// Are we loading an existing map?
 		if ( mapForImageSize.hasAttribute('data-map') ) {
 			savedMap = JSON.parse( mapForImageSize.getAttribute('data-map') );
-			console.log ( 'Extracted JSON object:' . savedMap );
+			//console.log ( 'Extracted JSON object:' . savedMap );
 		}
 
 		// And the remove Map button
 		var rmMapButton = $('<A/>', {
-			'id': pluginName + "-" + imageSize + "-rm",
-			'class': 'button-secondary addimgmaps-rm dashicons-before dashicons-trash',
+			'id': pluginIdName + "-" + imageSize + "-rm",
+			'class': 'button-secondary '+ pluginClassName  +'-rm dashicons-before dashicons-trash',
 			'text' : ' Delete whole map',
 			'href' : '#',
 			'click' : function() {
 				/**
-			     * (Closure) Wipes editing area & sets 'rm' flag.
+			     * (Closure) Wipes editing fieldset & sets 'rm' flag.
 				 *
-				 * @Listens Click on 'delete map' button.
+				 * @see onClick
 				 */
 
 				 /* Delete the image map */				
@@ -214,10 +244,10 @@
 				
 				/* set 'rm' flag (unless this is a new map, in which it
 				 * neither matters nor exists. */
-				$( '[name=' + pluginName + '-' + imageSize + '-rm]' ).val(1);
+				$( '[name=' + pluginIdName + '-' + imageSize + '-rm]' ).val(1);
 				closeEditMap (imageSize);
 				/* Expected to return -ed button to suggestion you create a new map; or cancel the deletion? */
-				$( 'a#' + pluginName + '-' + imageSize + '-ed' ).text(
+				$( 'a#' + pluginIdName + '-' + imageSize + '-ed' ).text(
 						'Cancel deletion & re-open "' + imageSize + '" map' );
 						
 				}
@@ -225,28 +255,27 @@
 				
 		);
 		
-		// NOT CURRENTLY INCLUDED - NO USER CASE
-		// (will be used to switch between maps)
-		var closeMapButton = $('<A/>', {
-			'id': pluginName + "-" + imageSize + "-close",
+		// NOT CURRENTLY INCLUDED - WILL BE USED TO _HANDLE_SIZES
+/*		var closeMapButton = $('<A/>', {
+			'id': pluginIdName + "-" + imageSize + "-close",
 			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-admin-collapse',
 			'text' : 'Pause editing',
 			'href' : '#',
 			'click' : function() {
 				/**
-				 * (Closure) to freeze the edit. Will need to change button.
+				 * (Closure) to close the editing window without removing it.
 				 *
-				 * @Listens Click on 'stop editing' button.
+				 * @See Click on 'stop editing' button.
 				 */
 				/* There are state changes to addimgmaps-ctrlmaps
 				 * - either a "no map" has become "unsaved new map"
 				 *		- or existing map has "unsaved changes"
 				 *	
 				 * (A deletion is modelled as a different state entirely.)
-				 */
+				 *
 
 				 // Show control panel, modified
-				$( 'a#' + pluginName + '-' + imageSize + '-ed' ).text(
+				$( 'a#' + pluginIdName + '-' + imageSize + '-ed' ).text(
 						'Resume editing map for size "' + imageSize + '"' );
 				closeEditMap(imageSize);
 
@@ -254,30 +283,27 @@
 			}
 				
 		);
+*/
 
 		var cancelMapButton = $('<A/>', {
-			'id': pluginName + "-" + imageSize + "-close",
-			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-undo',
+			'id': pluginIdName + "-" + imageSize + "-close",
+			'class': 'button-secondary ' + pluginClassName + '-close dashicons-before dashicons-undo',
 			'text' : ' Cancel',
 			'href' : '#',
 			'click' : function() {
 				/**
-				 * (Closure) to cancel the edit. 
-				 * @Listens Click on 'stop editing' button.
+				 * (Closure) to cancel the edit, and return to the state on page load. 
+				 * @See Click on 'stop editing' button.
 				 */
-				/* There are state changes to addimgmaps-ctrlmaps
-				 * - either a "no map" has become "unsaved new map"
-				 *		- or existing map has "unsaved changes"
-				 *		- or existing map has an "unsaved deletion"
-				 */
-				 
 
-				 /* Delete the image map */				
+				 /* Delete the fieldset for the editing image map */				
 				$('fieldset#addimgmaps-' + imageSize).empty();
 				
 				/* set 'unchanged' flag (unless this is a new map, in which it
 				 * neither matters nor exists. */
-				$( '#' + pluginName + '-' + imageSize + '-unchanged').val(1);
+				$( '#' + pluginIdName + '-' + imageSize + '-unchanged').val(1);
+				
+				/* Switch back to the control fieldset */
 				closeEditMap (imageSize);
 								
 				}
@@ -288,18 +314,17 @@
 		
 		
 		
-		// NB - MUST CHANGE TO CREATE AP?
 		// CF: Create Map ID is "#addimgmaps-cr" with a value of the imageSize
 		var createAreaButton = $("<A/>", {
-			'id': pluginName + "-" + imageSize + "-cr",
-			'class': 'button-secondary addimgmaps-area-cr dashicons-before dashicons-plus-alt',
+			'id': pluginIdName + "-" + imageSize + "-cr",
+			'class': 'button-secondary add_img_maps-area-cr dashicons-before dashicons-plus-alt',
 			'text' : ' Add new area',
 			'href' : '#',
 			'click' : function() {
 				/**
 				 * (closure handles event) Add form fields for new area & redraw the canvas.
 				 * 
-				 * @Listens Click on the "add area" button
+				 * @See Click on the "add area" button
 				 */
 					var newArea = createAreaBox( imageSize , nextChildIdNum( mapForImageSize ) ); 
 					mapForImageSize.appendChild( newArea );
@@ -308,27 +333,23 @@
 			}
 		);
 		
-		//Append the buttons
+		//Append all the buttons, with linkebreak space between
 		$(mapForImageSize).append( rmMapButton, ' ', cancelMapButton, ' ', createAreaButton, ' ');
 		
+		// Either set up the input forms for an existing image map ...
 		if ( savedMap ) {
 			var numAreas = savedMap.areas.length;
 			for ( var i = 0; i< numAreas; i++ ) {
 				var area = createAreaBox( imageSize, i, savedMap.areas[i]);	
 				$(mapForImageSize).append(area);
 			}
+		// ... or for a new one
 		} else {
-			// New Area box		
 			var firstArea = createAreaBox(imageSize, 0 , "rect");
 			$(mapForImageSize).append( firstArea );
 		}
 		
 		openEditMap ( imageSize );
-		//Remember, it started hidden
-		//$( mapForImageSize ).show();
-		// The addimgmaps-ctrlmaps box should now be disabled
-		//$('#addimgmaps-ctrlmaps').hide();
-		
 		
 		// This is a JScript event, not a JQuery one.
 		mapForImageSize.addEventListener("change", drawImageMap);
@@ -343,12 +364,11 @@
 	 * @see						createCoordForRect, createCoordForCircle, appendCoordForPoly
 	 * @param      {string}   imageSize  which Wordpress size of the image (eg "full", "thumbnail")
 	 * @param      {int}      areaIndex  which area we are creating
-	 * @param      {string}   [shape]    the shape of the clickable area (default: 'rect')
+	 * @param      {object}   areaObj	EITHER an associate array representing an existing area OR
+	 * 			OR	{string}	the shape of the clickable area (default: 'rect')
 	 * @returns    {object}	A DIV element containing the input forms for that clickable area
 	 */	
 	function createAreaBox( imageSize, areaIndex, areaObj ) {
-		// Catch an issue
-		console.assert ( imageSize == "full", "Image expected to be full, instead was ", imageSize); 
 		
 		var shape;
 		// shape defaults to 'rect'; 
@@ -364,19 +384,19 @@
 
 		console.assert ( shape=="rect"|| shape=="circle"||shape=="poly", "Invalid shape ", shape);
 
-		var metaBoxForImageSize = $( 'fieldset#' + pluginName + "-" + imageSize ).get(0);
+		var metaBoxForImageSize = $( 'fieldset#' + pluginIdName + "-" + imageSize ).get(0);
 		console.assert( metaBoxForImageSize );
 		
 		var newArea = document.createElement("div");
-		var newAreaId = pluginName + "-" + imageSize + "-" + areaIndex;
+		var newAreaId = pluginIdName + "-" + imageSize + "-" + areaIndex;
 		newArea.id = newAreaId;
-		newArea.className = pluginName + "-area";
+		newArea.className = pluginClassName + "-area";
 		newArea.appendChild( 
 			createShapeSelect( newArea.id, shape ) 
 		);
 
 		var deleteButton = document.createElement("a");
-		deleteButton.className="button-secondary addimgmaps-area-rm dashicons-before dashicons-dismiss"; // WP Admin CSS class, shows it as button
+		deleteButton.className="button-secondary add_img_maps-area-rm dashicons-before dashicons-dismiss"; // WP Admin CSS class, shows it as button
 		deleteButton.title="Delete area";
 		deleteButton.text="Delete area";
 		deleteButton.addEventListener("click", function() {
@@ -402,7 +422,7 @@
 			// Poly also needs to add a button for extra co-ordinates.
 			case "poly":
 				var addCoordButton = document.createElement("a");
-				addCoordButton.className="button-secondary addimgmaps-addcoord dashicons-before dashicons-plus"; 
+				addCoordButton.className="button-secondary add_img_maps-addcoord dashicons-before dashicons-plus"; 
 				addCoordButton.title="+ co-ord pair";
 				addCoordButton.text=" co-ord pair";
 				addCoordButton.addEventListener("click", function() {
@@ -488,7 +508,7 @@
 		// shape.selectedIndex = 0;
 		shape.value = shapeValue;
 		shape.name = areaId + '-shape';
-		shape.className = pluginName + "-shape";
+		shape.className = pluginClassName + "-shape";
 		
 		shape.addEventListener("change", function(  ) {
 				/**
@@ -498,18 +518,18 @@
 				 */
 				var newShapeValue = shape.value;
 
-				// Our ID standard is {plugin}-{imageSize}-{areanum}
+				// Our ID follows the rule {plugin}-{imageSize}-{areanum}
 				var idBits = areaId.split("-");
 								
 				var parentMetaBox = $( 'fieldset#' + idBits[0] + "-" + idBits[1] ).get(0) ;
 				
-/* Easier to:
-- retain the old areaBox, and run through lots of x.find( X ).value = y.find( Y).value
-- with translating some of the co-ordinates (eg so that a polygon turns into a rectangle
-					occupying roughtly the same area) being a wishlist item.
- */
+			/* 
+			 * The alt text & URL are passed on to the new area, but not co-ordinates.
+			 * Wishlist: translate co-ordinates when shape changes. (So a polygon
+			 * turns into a rectangle occupying roughtly the same area).
+			 */
 				
-				console.log( parentMetaBox, shape, shape.parentNode );
+				//console.log( parentMetaBox, shape, shape.parentNode );
 				var newAreaBox = createAreaBox( idBits[1], idBits[2], newShapeValue );
 				var oldAreaBox = parentMetaBox.replaceChild( 
 					newAreaBox,
@@ -520,14 +540,12 @@
 				$( newAreaBox ).children('input:text').val(
 					$( oldAreaBox ).children('input:text').val()
 				);
-
 				
 				// Only one with a name field sending in HREF
 				$( newAreaBox ).children('[name$="href"]').val(
 					$( oldAreaBox ).children('[name$="href"]').val()
 				);
-				
-								
+							
 			}
 		);	
 		
@@ -537,7 +555,9 @@
 	/*
 	 * Create a div element with input boxes for 2 pairs of co-ordinates.
 	 *
-	 * @param {DOMObject} areaDiv	     The Div representing the area to which the Co-ordinates are being added.
+	 * @access private
+	 * @param {DOMObject} areaDiv	    The Div representing the area to which the Co-ordinates are being added.
+	 * @param {array}		coordArray	(optional) A list of co-ordinates.
 	 *	
 	 * @returns {DOMObject} The div element, ready to be appended.
 	 */
@@ -547,8 +567,14 @@
 		var coordsDiv = document.createElement( "div" );
 		coordsDiv.id = areaDiv.id + "-co";
 		var span1 = document.createElement( "span" );
-		span1.className='addimgmaps-coord-pair';
+		span1.className='add_img_maps-coord-pair';
 		
+		/**
+		 * If no co-ordinates are passed, then put the rectangle
+		 * roughly in the middle of the image, but give it a random
+		 * offset so that new areas do not automatically superimpose
+		 * over each other.
+		 */
 		if( ! coordArray ) {
 			var randomOffset = Math.random();
 			
@@ -578,7 +604,7 @@
 		);
 		
 		var span2 = document.createElement( "span" );
-		span2.className='addimgmaps-coord-pair';
+		span2.className='add_img_maps-coord-pair';
 		
 		span2.appendChild ( 
 			createNumberInput(
@@ -606,7 +632,8 @@
 	/*
 	 * Create a div element with input boxes for the circle's position & radius.
 	 *
-	 * @param {DOMObject} areaDiv	DOM form element for the circle
+	 * @param {DOMObject} 	areaDiv		DOM form element for the circle
+	 * @param	{array}		coordsArray	List of co-ordinates (optional)
 	 *	
 	 * @returns {DOMObject} The div form element, ready to be appended.
 	 */
@@ -615,6 +642,7 @@
 		// create NumberInput - x, y, r
 		var coordsDiv = document.createElement( "div" );
 		
+		// Put a new area in the middle, with a random jiggle
 		if ( ! coordsArray ) {
 			var randomOffset = Math.random();
 			coordsArray = [
@@ -653,17 +681,21 @@
 	}
 
 	/*
-	 * Append 3 div element with input boxes for a co-ordinate pair each.
+	 * Append 3 co-ordinate div elements with input boxes for a co-ordinate 
+	 * pair each.
+	 *
+	 * Polygons have an arbitrary number of co-ordinates, and hence more requirements.
+	 * Thus these are created with a 'delete' button. But because a polygon needs at least
+	 * 3 co-ordinates, the delete button is initially hidden.
+	 * 
+	 * The other difference to other shapes is the need to append the divs with
+	 * the co-ordinate pairs within the function rather than to return them.
 	 *
 	 * @param {DOMObject} areaDiv	DOM form element for the polygon
 	 *
 	 * @see createCoordPairForPoly
-	 * 
-	 * Polygons have an arbitrary number of co-ordinates, and hence more requirements.
-	 * Thus these are created with a 'delete' button. But because a polygon needs at least
-	 * 3 co-ordinates, the delete button is initially hidden.
 	 *
-	 * @returns {boolean} True (because each co-ord pair is its own div, they must be appended in-function)
+	 * @returns {boolean} True 
 	 */
 	
 	function appendCoordForNewPoly( areaDiv ) {
@@ -695,25 +727,19 @@
 		);
 		
 		// Make sure the delete buttons start off hidden
-		$(areaDiv).find(".addimgmaps-delete-coords").hide();
+		$(areaDiv).find(".add_img_maps-delete-coords").hide();
 		
 		return true;
-	
-			// Otherwise create 2 co-ords
 	}
 
 	/*
-	 * Append div elements with input boxes for a co-ordinate for all saved points.
+	 * Append div elements with input elements for a previously saved polygon area.
 	 *
 	 * @param {DOMObject} areaDiv		DOM form element for the polygon
 	 * @param {array}	  coordsArray	Array of the co-ordinates
 	 *
 	 * @see createCoordPairForPoly
 	 * 
-	 * Polygons have an arbitrary number of co-ordinates, and hence more requirements.
-	 * And the delete button needs to be shown or hidden depending on the number of
-	 * co-ordinate paris.
-	 *
 	 * @returns {boolean} True (because each co-ord pair is its own div, they must be appended in-function)
 	 */
 
@@ -731,9 +757,10 @@
 
 		}
 		
-		// Make sure the delete buttons starts off hidden for triangles
+		// Make sure the delete buttons start off hidden if this is already
+		// a triangle.
 		if ( coordsArray.length == 6 ) {
-			$(areaDiv).find(".addimgmaps-delete-coords").hide();
+			$(areaDiv).find(".add_img_maps-delete-coords").hide();
 		}
 		
 		return true;
@@ -744,6 +771,9 @@
 	
 	/*
 	 * Create a pair of polygon co-ordinates starting at the given dimensions.
+	 *
+	 * @see appendCoordForSavedPoly, appendCoordForNewPoly, 
+	 *		appendCoordForNewPoly, addCoordPairForPoly
 	 *
 	 * @param	{string}	idStem		The area div id, plus an index for the co-ordinate pair
 	 * @param 	{int}   	x	        x co-ordinate.
@@ -761,9 +791,10 @@
 			createNumberInput( idStem + "-y", y, getAttachmentHeight(), '↓' )
 		);
 		coordsDiv.className="poly-coords";
-		
+
+		// Create a button to delete the co-ordinates	
 		var deleteCoords = document.createElement( "a" );
-		deleteCoords.className="button-secondary addimgmaps-delete-coords dashicons-before dashicons-no-alt"; 
+		deleteCoords.className="button-secondary add_img_maps-delete-coords dashicons-before dashicons-no-alt"; 
 		deleteCoords.title="Delete co-ordinates";
 		deleteCoords.text=" "; /* The dashicon does enough. */
 		deleteCoords.addEventListener("click", function() {
@@ -775,10 +806,10 @@
 		 *
 		 * @Listens for clicks on the "delete" button by a polygon co-ord pair
 		 */
-			var jQ_areaDiv = $(coordsDiv).closest("div." + pluginName + "-area");
+			var jQ_areaDiv = $(coordsDiv).closest("div." + pluginClassName + "-area");
 			var jQ_numCoords = jQ_areaDiv.find(".poly-coords").length;
 			if (jQ_numCoords <= 4) { // If we are about to hit the minimum co-ord pairs
-				jQ_areaDiv.find(".addimgmaps-delete-coords").hide();
+				jQ_areaDiv.find(".add_img_maps-delete-coords").hide();
 			}
 			var areaDiv = jQ_areaDiv.get(0);
 			areaDiv.removeChild( coordsDiv );
@@ -792,13 +823,12 @@
 	}
 
 	/** 
-	 * Add a polygon co-ordinate pair (or rather their input elements) 
+	 * Add a new polygon co-ordinate pair (or rather their input elements) 
      *
 	 * Becase the polygon now has vertices to lose, this makes the 'delete' 
 	 * button visible.
 	 
 	 * @Listens to the "add" button on polygon area.
-	 *
 	 *
 	 * @see createCoordPairForPoly
 	 *
@@ -808,7 +838,7 @@
 	function addCoordPairForPoly ( areaDiv ) {
 		var whichIdNum = nextChildIdNum( areaDiv ), 
 			jQ_coords = $( areaDiv).find(".poly-coords");
-		// A DEBUG sanity check
+		// A sanity check
 		console.assert( whichIdNum > 2, 
 			"Called addCoordPairForPoly with ", areaDiv, "NextChildIdNum returned ", whichIdNum );
 			
@@ -823,7 +853,7 @@
 		// Make sure all the delete buttons are visible
 		// (In theory, I could set this to only happen if jQ_coords.lenght==3, because that's
 		//  the only time it should be needed, but a little robustness won't hurt.)
-		$(areaDiv).find(".addimgmaps-delete-coords").show();
+		$(areaDiv).find(".add_img_maps-delete-coords").show();
 		
 		return areaDiv;
 	}
@@ -850,7 +880,7 @@
 			return 0;
 		} else {
 			var lastId = lastAreaDiv.id;
-			console.log(lastId);
+			//console.log(lastId);
 		// Find the bit after the last "-" and turn it into a number.
 			var suffix = lastId.substr( lastId.lastIndexOf("-")+1);
 			return parseInt( suffix) + 1;			
@@ -881,7 +911,6 @@
 			numberInput.max=max;
 		}
 		numberInput.value = Math.round( defaultValue );
-//		return numberInput;
 		label.appendChild(numberInput);
 		return label;
 	}	
@@ -915,22 +944,18 @@
 			throw "drawImageMap called with " + e + " neither event nor DOM ancestor.";
 		}
 
-		// Look up the treat so that we've found the form element.
-		// TODO - this will not work, as the per-size node won't be a form.
+		// Find the overall parent of the input form
 		if ( ! jQ_metaBoxForImageSize.is("fieldset") ) {
 			jQ_metaBoxForImageSize = jQ_metaBoxForImageSize.closest("fieldset");
 			console.assert( jQ_metaBoxForImageSize.length == 1, jQ_metaBoxForImageSize );
 		}
 		
 		// There's only going to be one canvas
-		canvas = $('#' + pluginName +"-canvas")[0];
+		canvas = $('#' + pluginIdName +"-canvas")[0];
 		console.assert ( canvas );
 		context = canvas.getContext("2d");
 		context.globalCompositeOperation="xor";
 		
-				
-		// Get Area Divs - jQuery for div elements that are a direct child of the element matching this id.
-
 		// About to start drawing, so choose this moment to clear the canvas.
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.strokeStyle = "black";
@@ -949,14 +974,13 @@
 		
 		jQ_metaBoxForImageSize.children("div").each( function(index,element) {
 			// What shape is this?
-			var shapeChooser = $( element ).children("select." + pluginName + "-shape");
+			var shapeChooser = $( element ).children("select." + pluginClassName + "-shape");
 			if ( ! shapeChooser.length ) {
 				// Then this isn't an area div; it's something else.
 				// console.log("Skipping div. Index & element are:", index, element);
 				return null;
 			}
 			console.assert ( shapeChooser.length == 1 , shapeChooser );
-// TODO Scale down x & y where needed
 
 			// NB: this ignores the id & relies entirely on the input order
 			var x, y, r, coords;
@@ -978,7 +1002,8 @@
 					var y2 = coords[3].value;
 					// strokeRect takes width & height, not co-ords
 					context.strokeRect(scale*x, scale*y, scale*(x2-x), scale*(y2-y));
-					// Doesn't actually need the begin / end / stroke sequence, but can't hurt.
+					// Doesn't actually use the beginPath / end / stroke sequence, but I put it
+					// outside the switch block just to avoid repitition.
 				break;
 				
 				case "poly":

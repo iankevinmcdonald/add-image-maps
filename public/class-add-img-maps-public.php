@@ -3,21 +3,12 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       mcdonald.me.uk
- * @since      1.0.0
+ * Tracks the images (at least the ones that the WP database knows appear in
+ * the page), outputs their image maps, and loads the Javascript to attach
+ * the imagemaps to the images.
  *
- * @package    Add_Img_Maps
- * @subpackage Add_Img_Maps/public
- */
-
-/**
- * The public-facing functionality of the plugin.
- *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the public-facing stylesheet and JavaScript.
- *
- * @package    Add_Img_Maps
- * @subpackage Add_Img_Maps/public
+ * @since		0.1.0
+ * @package    Add_Img_Maps/public
  * @author     Ian McDonald <ian@mcdonald.me.uk>
  */
 class Add_Img_Maps_Public {
@@ -43,6 +34,9 @@ class Add_Img_Maps_Public {
 	/**
 	 * A tracker of the images on the current page.
 	 *
+	 * Structure:
+	 * `[ from => [ content/header/thumbnail ], image => $image ]`
+	 *
 	 * @since    1.0.0
 	 * @access   private
 	 * @var      array    $images   List of image post objects
@@ -66,152 +60,40 @@ class Add_Img_Maps_Public {
 
 	
 	/**
-	 * Register the stylesheets for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Add_Img_Maps_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Add_Img_Maps_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/add-img-maps-public.css', array('jquery'), $this->version, 'all' );
-
-	}
-
-	/**
-	 * Register the JavaScript for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Add_Img_Maps_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Add_Img_Maps_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/add-img-maps-public.js', array( 'jquery' ), $this->version, false );
-
-	}
-	
-	/**
-	 * 
-	 * The *_usemap functions do the following:
-	 * - find the images (content_usemap only)
-	 * - find the image IDs & sizes (content_usemap & perhaps header_usemap only)
-	 * - discover whether those IDs have an image map.
-	 * - add 'usemap' attribute
-	 * - optionally, delete srcset attribute
-	 * - add the image ID & size to the 'usemap'
+	 * This does not enqueue any CSS, and the Javascript is enqueued within
+	 * the footer hook, so there are no specific enqueue_* functions.
 	 */
 	 
-	/*
-	 * Takes string $html, object $header, array $attr
-	 */
-	
-	public function header_usemap( $html, $header, $attr ) { 
-		error_log("In Add_Img_Maps_Public->header_usemap for header: " .
-			print_r( $header, true) );
-	}
-	
 	/**
-	 * Add the usemap attribute to a featured image.
+	 * Options prototyped and rejected:
 	 *
-	 * @hook wp_get_attachment_image_attributes (& possibly modify_header_image_data)
-	 
-$attr
-(array) Attributes for the image markup.
-
-$attachment
-(WP_Post) Image attachment post.
-
-$size
-(string|array) Requested size. Image size or array of width and height values (in that order). Default 'thumbnail'.	 
+	 * 1. Handling the wp_get_attachment_image_attributes hook & adding 'usemap'
+	 * 2. Handling the modify_header_image_data to add 'usemap' attribute
+	 *
+	 * The problem with both these low-level handlers is that it's up to the 
+	 * template whether to use the functions that call them.
 	 */
-	
-	public function featured_usemap( $attr, $attachment, $size ) {
-		error_log("Called featured_usemap with attr=$attr attachment=" . 
-			$attachment->ID . " size=$size");
+	 
 
-		$maps_metadata = get_post_meta( $attachment->ID, '_add_img_maps', false); // Not single value
-		
-/*		error_log('maps_metadata: ' . print_r($maps_metadata, true) .
- *			'size: ' . print_r($size, true));
- */		
-		// Abandon this is it's not set.
-		if ( ! count( $maps_metadata ) ) {
-			return $attr;
-		}
-
-		$map_size = null;
-		
-		if ( 'array' == gettype( $size) ) { // If responsive (I think)
-			// Responsive image.
-			error_log('add_usemap passed size as array (' .
-				$size[0] . ' x ' . $size[1] . ') - responsive?');
-			$map_size = 'full'; //Force it to use the 'full' image size map
-			if ( $this->add_img_maps_options['srcset'] == 'off' ) {
-				unset ( $attr['srcset'] ); // Responsive images off
-			}
-		}
-				
-		if ( isset( $maps_metadata[$size] ) ) { //if map
-			if ( ! $maps_metadata[$size] instanceof Add_Img_Maps_Map ) {
-				throw new Exception ( 
-					'Post metadata not Add_Img_Maps_Map instance, instead ' .
-					print_r( $maps_metadata[$size] , true )
-				);
-			}
-			$attr['usemap'] = 'add-img-map-' . $attachment->ID . '-' . $size;
-			// What about srcset?
-		}
-
-		// Return the changed attributes.
-		return $attr;
-	}
 	
-	
-	public function content_usemap( $html ) {
-		error_log("->content_usemap with html=" . substr( $html, 0, 32) );
-		// Grab all img elements
-		// Interrogate them.
-		// If I can't find the image tag, so be it.
-		return $html;
-	}
 	
 	/**
-	 * - find the images (DB query) with IDs
-	 * - discover whether those IDs have an image map.
-	 * - pass unique identifier (url?) to Javascript, possibly in div data.
-	 * - add 'usemap' attribute
-	 * - optionally, delete srcset attribute
-	 * - add the image ID & size to the 'usemap'
+	 * Find all images attached (db-wise) to the post, and add them to $images.
+	 *
+	 * The function is hooked into this_post, so called once on single pages
+	 * and multiple times on lists.
+	 *
+	 * @acess public
+	 * @var	 WP_Post	$post	The current post.
+	 * @return	null
 	 *
 	 */
 	public function list_images($post) {
-		error_log('Add_Img_Maps_Public->append_maps()');
-		//global $post;
+		//error_log('Add_Img_Maps_Public->append_maps()');
 		
-		// Which ones are we processing?
-		// [ from => [ content /header/thumbnail ], image => $image ]
-		
+		// Which ones are we processing? Check the options & record the source.
+
+		// 	 find the images (DB query) with IDs
 		if ( $this->add_img_maps_options['content'] ) {
 			$children = 			
 				get_children( // Start a new query for our registered images
@@ -235,11 +117,12 @@ $size
 					);
 				}
 
-				error_log('Found image ID ' . $child_image->ID . ' "' . $child_image->post_title . '"' );
+				//error_log('Found image ID ' . $child_image->ID . ' "' . $child_image->post_title . '"' );
 			
 			}
 		} // end if content option set
-				
+
+		// If we're including featured images, check the featured image too.
 		if ( $this->add_img_maps_options['thumbnail'] ) {
 			// Includes check for 'has feature support'
 			$thumbnail_id = get_post_thumbnail_id();
@@ -252,13 +135,22 @@ $size
 						'from' => array('thumbnail'),
 					);
 				}
-				error_log('Added featured image: ' . $thumbnail_id );
+				//error_log('Added featured image: ' . $thumbnail_id );
 			}
 			
 		}
 	
 	}
 
+/**
+ * Add the header to the lists & output image maps in footer.
+ *
+ * Also, optionally, sets up the Javascript that will attach maps to images.
+ *
+ * @access	public 
+ * @var		none
+ * @return	none
+ */
 		
 public function append_maps() {		
 		//if 'header' is turned on.
@@ -280,17 +172,17 @@ public function append_maps() {
 						'from' => array('header'),
 					);
 				}
-				error_log('Head image ID=' . $header_image->attachment_id);
+				//error_log('Head image ID=' . $header_image->attachment_id);
 			}
 		}
 				
-//		error_log( 'images: ' . print_r($this->images, true) );
+		//error_log( 'images: ' . print_r($this->images, true) );
 		
 		
 		// Of course, this doesn't tell me which size of the page is included in the page. 
 		// Rather than interrogate the page, I'll dump all the image maps and let Javascript sort it out.
-		
-		//Include debug comment if debug level turned on?
+
+		// Track all images with maps
 		$images_with_maps = array();
 		
 		foreach( $this->images as $ID => $image ) {
@@ -299,19 +191,18 @@ public function append_maps() {
 					print_r ( $image['image'], true ));
 			}
 			// Does it have a map?
-			$maps_metadata = get_post_meta( $image['image']->ID, '_add_img_maps', true );
+			$maps_metadata = get_post_meta( $image['image']->ID, Add_Img_Maps::get_key(), true );
 			if ( $maps_metadata ) {
 				$image['maps']=$maps_metadata;
 				$images_with_maps[ $ID ] = $image;
 			}
 		}
-			
 		
 		// If there's nothing to see, we move on.
 		if ( ! $images_with_maps ) {
 			return;
 		}
-		error_log( 'images_with_maps: ' . print_r($images_with_maps, true) );
+		//error_log( 'images_with_maps: ' . print_r($images_with_maps, true) );
 		
 		// The srcset option is either 'run' [responsive images] or 'off'
 		
@@ -326,7 +217,7 @@ public function append_maps() {
 				if ( $image['image'] instanceof stdClass ) {
 					$url = $image['image']->url;
 				// Else a WP_Post object
-				// If the GUID ends in a file suffix, assume URL
+				// If the GUID ends in a file suffix, assume it is a URL* (see below)
 				} else if ( preg_match( '/\.\w{3,5}$/', $image['image']->guid ) ) {
 					$url = $image['image']->guid;
 				// else just look it up
@@ -357,27 +248,13 @@ public function append_maps() {
 		// Also, only enqueue the Javascript for this if it's needed.
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/add-img-maps-public.js', array( 'jquery' ), $this->version, true );
 	}
-	
-	/**
-	 * Push an [id/size] pair onto the mapId cached object.
-	 */
-	protected function DEPRECATED_push_map_id ( $id, $size ) {
-		if ( ! is_numeric ($id) or ! is_string( $size) ) {
-			throw new Exception ("->push_mapId invalid input $id $size");
-		}
-		$map_ids = wp_cache_get( $this->plugin_name, 'map_id');
-		if (! $map_ids ) {
-			$map_ids = array ( );
-		}
-		array_push( $map_ids, array( $id, $size) );
-		wp_cache_replace( $this->plugin_name, $mapIds, 'map_id' );
-	}
-	
-	/**
-	 * Get the stored ids from the cache
-	 */
-	
-	protected function DEPRECATED_get_map_ids () {
-		return wp_cache_get( $this->plugin_name, 'map_id');
-	}
+
 }
+
+/* *About that GUID kludge. The GUID is meant to store a unique ID for RSS
+ * feed readers, and that's the function it performs for post/page objects. 
+ * For images, it seems to be used for the URL. But I can't see from the
+ * documentation if that's a feature or an accidental side-effect that I 
+ * cannot rely on. So I've tried to use it to save time if present, and make
+ * another DB call if I have to. 
+ */

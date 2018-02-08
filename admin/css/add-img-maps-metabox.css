@@ -1,6 +1,6 @@
 
 /**
- * Class names (like PHP) uses the prefix 'add_img_maps'
+ * Class names (like PHP) uses the prefix 'add_img_maps', whereas ids use 'addimgmaps'
  */
  
 /**
@@ -20,7 +20,7 @@
 
 /* Don't put line breaks within co-ordinate pairs */
 
-span.addimgmaps-coord-pair {
+span.add_img_maps-coord-pair {
 	white-space: nowrap;
 }
 
@@ -33,7 +33,8 @@ span.addimgmaps-coord-pair {
 	white-space: normal;
 }
 
-/* Let them wrap*/
+/* Let the buttons for editing image maps wrap across lines */
+
 .add_img_maps-editmap a.button-secondary {
 	padding-top: 0.1em;
 	margin-top: 0.1em;
@@ -42,65 +43,24 @@ span.addimgmaps-coord-pair {
 }
 
 /*
- * A test when this didn't load.
- */
-
-div#addimgmaps-test-213155 {
-	border: red 2px !important;
-	font-size: large;
-	background-color: yellow;
-	font: 'Garamond';
-}
-
-/*
  * The metadata area class structure is:
  * 
- * div.addimgmaps-area 
+ * div.add_img_maps-area 
  * 	 > div.poly-coords
  */
  
-div.addimgmaps-area {
+div.add_img_maps-area {
 	padding-top: 1em;
 }
 
-.addimgmaps-area input[type=text], input[type=url] {
+.add_img_maps-area input[type=text], input[type=url] {
 	width: 100%;
 }
 
-.addimgmaps-area input[type=number] {
+.add_img_maps-area input[type=number] {
 	width: 4.2em;
 }
 
-.addimgmaps-area label {
+.add_img_maps-area label {
 	font-size: large;
 }
-
-/* 
- * Adding Dashicons to Image edit buttons
- */
-
-/*
- * Abandoned in favour of using HTML classes.
- *
- 
-#addimgmaps-cr:before {
-	content: "\f180";
-    /* Create new map */
-/*}
-
-
-
-.addimgmaps-addcoord {
-}
-
-.addimgmaps-delete-coords {
-} 
-
-.addimgmaps-rm { /*Remove map*
-
-}
-
-.addimgmaps-close { /* close current editing window * }
-
-.addimgmaps-area-cr { /* create an area * }
-*/
