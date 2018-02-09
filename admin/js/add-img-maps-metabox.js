@@ -75,7 +75,7 @@ var addImgMapsClosure = function($) {
 		// Fail gracefully if unsupported
 		if ( ! dependenciesSatisfied ) {
 			$( '#' + pluginIdName + '-metabox > .inside').get().innerHTML(
-				'Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin'
+				addimgmaps_metabox_i18n.please_upgrade
 			);
 			return;
 		}
@@ -251,7 +251,7 @@ var addImgMapsClosure = function($) {
 		var rmMapButton = $('<A/>', {
 			'id': pluginIdName + "-" + imageSize + "-rm",
 			'class': 'button-secondary '+ pluginClassName  +'-rm dashicons-before dashicons-trash',
-			'text' : ' Delete whole map',
+			'text' : ' ' + addimgmaps_metabox_i18n.map_button_rm,
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -269,7 +269,8 @@ var addImgMapsClosure = function($) {
 				closeEditMap (imageSize);
 				/* Expected to return -ed button to suggestion you create a new map; or cancel the deletion? */
 				$( 'a#' + pluginIdName + '-' + imageSize + '-ed' ).text(
-						'Cancel deletion & re-open "' + imageSize + '" map' );
+						addimgmaps_metabox_i18n.map_button_rm2ed.replace('%s',imageSize)); 
+						//'Cancel deletion & re-open "' + imageSize + '" map' );
 						
 				}
 			}
@@ -280,7 +281,7 @@ var addImgMapsClosure = function($) {
 /*		var closeMapButton = $('<A/>', {
 			'id': pluginIdName + "-" + imageSize + "-close",
 			'class': 'button-secondary addimgmaps-close dashicons-before dashicons-admin-collapse',
-			'text' : 'Pause editing',
+			'text' : 'Pause editing', //addimgmaps_metabox_i18n.map_button_ed2close
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -297,7 +298,7 @@ var addImgMapsClosure = function($) {
 
 				 // Show control panel, modified
 				$( 'a#' + pluginIdName + '-' + imageSize + '-ed' ).text(
-						'Resume editing map for size "' + imageSize + '"' );
+						'Re-open editing "' + imageSize + '" map' );
 				closeEditMap(imageSize);
 
 				}
@@ -309,7 +310,7 @@ var addImgMapsClosure = function($) {
 		var cancelMapButton = $('<A/>', {
 			'id': pluginIdName + "-" + imageSize + "-close",
 			'class': 'button-secondary ' + pluginClassName + '-close dashicons-before dashicons-undo',
-			'text' : ' Cancel',
+			'text' : ' ' + addimgmaps_metabox_i18n.map_button_close,
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -339,7 +340,7 @@ var addImgMapsClosure = function($) {
 		var createAreaButton = $("<A/>", {
 			'id': pluginIdName + "-" + imageSize + "-cr",
 			'class': 'button-secondary add_img_maps-area-cr dashicons-before dashicons-plus-alt',
-			'text' : ' Add new area',
+			'text' : ' ' + addimgmaps_metabox_i18n.map_button_cr,
 			'href' : '#',
 			'click' : function() {
 				/**
@@ -418,8 +419,8 @@ var addImgMapsClosure = function($) {
 
 		var deleteButton = document.createElement("a");
 		deleteButton.className="button-secondary add_img_maps-area-rm dashicons-before dashicons-dismiss"; // WP Admin CSS class, shows it as button
-		deleteButton.title="Delete area";
-		deleteButton.text="Delete area";
+		deleteButton.title= addimgmaps_metabox_i18n.area_button_rm;
+		deleteButton.text= addimgmaps_metabox_i18n.area_button_rm;
 		deleteButton.addEventListener("click", function() {
 			/**
 			 * Remove this clickable area & redraw (closure)
@@ -444,8 +445,8 @@ var addImgMapsClosure = function($) {
 			case "poly":
 				var addCoordButton = document.createElement("a");
 				addCoordButton.className="button-secondary add_img_maps-addcoord dashicons-before dashicons-plus"; 
-				addCoordButton.title="+ co-ord pair";
-				addCoordButton.text=" co-ord pair";
+				addCoordButton.title= ' ' + addimgmaps_metabox_i18n.area_button_coord;
+				addCoordButton.text= addimgmaps_metabox_i18n.area_button_coord;
 				addCoordButton.addEventListener("click", function() {
 					addCoordPairForPoly( newArea );
 					drawImageMap( metaBoxForImageSize );
@@ -469,7 +470,7 @@ var addImgMapsClosure = function($) {
 		newField.name= newAreaId + '-href';
 		newField.maxlength=128;
 		newField.size=32;
-		newField.placeholder="Please enter the web link that the clickable area links to.";
+		newField.placeholder= addimgmaps_metabox_i18n.area_placehold_href;
 		if ( areaObj ) {
 			newField.value = areaObj.href;
 		}
@@ -484,7 +485,7 @@ var addImgMapsClosure = function($) {
 		newField.className="regular-text";
 		newField.maxlength=128;
 		newField.size=32;
-		newField.placeholder="Please enter alternative text for people who don't see the image.";
+		newField.placeholder= addimgmaps_metabox_i18n.area_placehold_alt;
 		if ( areaObj ) {
 			newField.value = areaObj.alt;
 		}
@@ -509,19 +510,19 @@ var addImgMapsClosure = function($) {
 		var shape = document.createElement("select");
 		
 		var option = document.createElement("option");
-		option.text="□ Rectangle";
+		option.text="□ " + addimgmaps_metabox_i18n.shape_rect;
 		option.value="rect";
 		option.name= areaId + "-shape";
 		shape.add(option);
 				
 		option = document.createElement("option");
-		option.text="○ Circle";
+		option.text="○ " + addimgmaps_metabox_i18n.shape_circle;
 		option.value="circle";
 		option.name=areaId + "-shape";
 		shape.add(option);
 		
 		option = document.createElement("option");
-		option.text="☆ Polygon";
+		option.text="☆ " + addimgmaps_metabox_i18n.shape_poly;
 		option.value="poly";
 		option.name=areaId + "-shape";
 		shape.add(option);
@@ -695,7 +696,7 @@ var addImgMapsClosure = function($) {
 				coordsArray[2],
 				/* At this maximum, the circle could eclipse the whole area */
 				(getAttachmentHeight()+getAttachmentWidth())/2,
-				'𝑟'
+				addimgmaps_metabox_i18n.shape_label_r
 			)
 		);
 		return coordsDiv;		
@@ -816,7 +817,7 @@ var addImgMapsClosure = function($) {
 		// Create a button to delete the co-ordinates	
 		var deleteCoords = document.createElement( "a" );
 		deleteCoords.className="button-secondary add_img_maps-delete-coords dashicons-before dashicons-no-alt"; 
-		deleteCoords.title="Delete co-ordinates";
+		deleteCoords.title= addimgmaps_metabox_i18n.shape_coord_rm;
 		deleteCoords.text=" "; /* The dashicon does enough. */
 		deleteCoords.addEventListener("click", function() {
 		/*
@@ -1076,7 +1077,6 @@ jQuery(document).ready( function() {
 /**
  * Extant issues:
  * 
- * When testing in Chrome, I expect the browser to honour the 'min' and 'max' values set on input:number fields.
- * It doesn't.
+ * Currently none.
  *
  */

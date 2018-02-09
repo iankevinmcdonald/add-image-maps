@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 
 /**
@@ -94,8 +94,54 @@ class Add_Img_Maps_Admin {
 					array( 'jquery' ), 
 					$this->version
 				); 
-				
-				
+				// Set up button labels and other internationalisable text
+				wp_localize_script(
+					$this->plugin_name . '-metabox',
+					//str_replace('-', '',$this->plugin_name) . '_metabox_i18n', //The variable
+					'addimgmaps_metabox_i18n', //The variable
+					array(
+						'please_upgrade' 		=>	__('Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin', $this->plugin_name),
+						
+						'map_button_rm' 		=>	__('Delete whole map', $this->plugin_name),
+						
+						// translators: this is the image size (which is a WP term and not translated)
+						'map_button_rm2ed' 		=>	__('Cancel deletion and re-open "%s" map',
+														$this->plugin_name),
+														
+/* for _HANDLE_SIZES	'map_button_ed2close	=>	__('Pause editing', $this->plugin_name),
+						'map_button_close2ed	=>	__('Re-open "%s" map for editing', $this->plugin_name),
+ */
+					
+						'map_button_close'		=>	__('Cancel', $this->plugin_name),
+						'map_button_cr'			=> 	__('Add new area', $this->plugin_name),
+
+						'area_button_rm'		=>	__('Delete area', $this->plugin_name),
+						'area_button_add'		=>	__('co-ord pair', $this->plugin_name),
+						
+						'area_placehold_href'	=>	__(
+							'Please enter the web link that the clickable area links to.',
+							$this->plugin_name),
+						'area_placehold_alt'	=>	__(
+							"Please enter alternative text for people who don't see the image.",
+							$this->plugin_name),
+							
+						//translators: will be prefixed with unicode square/circle/star characters
+						'shape_rect'			=>	__('Rectangle', $this->plugin_name),
+						'shape_circle'			=>	__('Circle',	$this->plugin_name),
+						'shape_poly'			=>	__('Polygon',	$this->plugin_name),
+						/* a mathematical italic 'r' for radius, invisible in some monospace charsets */
+						'shape_label_r'			=>	__('𝑟',			$this->plugin_name),
+						/* the x and y co-ordinate labels are arrows, so pre-internationalised */
+						/* Only used on title attribute; the label is an icon */
+						'shape_coord_rm'		=>	__('Delete co-ordinates', $this->plugin_name),
+						
+						/* Vars. Translators: do not translate */
+						'plugin_name'			=>	$this->plugin_name, 
+						'plugin_id_name'		=>	Add_Img_Maps::attr_prefix(), 
+						'ADD_IMG_MAPS_HANDLE_SIZES'
+												=>	false,
+						)
+					); //Added internationalisation				
 			}
 		}
 

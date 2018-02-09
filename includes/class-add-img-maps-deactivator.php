@@ -25,13 +25,12 @@ class Add_Img_Maps_Deactivator {
 	/**
 	 * Deactiveate plugin.
 	 *
-	 * Unregister the settings. (Doesn't remove metadata; that waits for uninstallation).
+	 * Does nothing. (Unregistring options & removing metadata waits for uninstallation).
 	 *
 	 * @since    0.1.0
 	 */
 	public static function deactivate() {
-		//delete the options. BUG: This is expected to delete the lines from the table, and it doesn't. Impact: zero.
-		unregister_setting( Add_Img_Maps::get_plugin_name() , Add_Img_Maps::get_plugin_name() );
+		//nothing 
 	}
 
 }

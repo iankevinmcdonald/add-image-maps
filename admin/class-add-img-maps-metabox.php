@@ -32,8 +32,8 @@ class Add_Img_Maps_Metabox
 	 * 
 	 * Attached to the pre-updated hook.
 	 *
-	 * @access public
-	 * @param int $post_id The post ID.
+	 * @access 		public
+	 * @param 		int 	$post_id 	The post ID.
 	 */
  
  
@@ -42,22 +42,34 @@ class Add_Img_Maps_Metabox
 		// error_log('Add_Img_Maps_Metabox->save');
 		$post = get_post($post_id);
 		
-		// If this is not an image, return
+		// If this is not an image, bail
 		if ( strncasecmp( $post->post_mime_type, 'image', 5) ) {
 			error_log('Mime type is ' . $post->post_mime_type );
-			return null;
+			return $post_id;
+		}
+
+		// Bail out now if POST vars not set
+		if ( ! isset( $_POST[ Add_Img_Maps::name() . '-nonce'] ) ) {
+			return $post_id;
+		}
+		// Bail out now if nonce doesn't verify
+		if ( ! wp_verify_nonce( $_POST[ Add_Img_Maps::name() . '-nonce'], Add_Img_Maps::name() ) ) {
+			return $post_id;
 		}
 		
-		// Task 1 is to reform 
+		// Start by turning the relevant input forms into an array. 
 		$input = array();
 		foreach ( $_POST as $field => $val ) {
+		
 			/* if the key belongs to this plugin */
 			if ( ! strncmp( $field, Add_Img_Maps::attr_prefix(), 10) ) {
 				/* Field names translate into a layered associative array - 
 				 * EG addimgmaps->size->0->shape - and each input field is a
 				 * 'leaf' 
 				 */
-				$subkeys = explode('-', $field );
+				$subkeys = explode('-', sanitize_text_field($field) );
+				$val = sanitize_text_field( $val );
+				
 				// $subkeys[0] is the prefix, so not part of the array
 				// $subkeys[1] is the image size.
 				// $subkeys[2] is usually a numerical area list, or a flag (eg 'rm')
@@ -198,6 +210,9 @@ class Add_Img_Maps_Metabox
 		?>
 <canvas id="addimgmaps-canvas" class="add_img_maps-canvas"></canvas><!-- Should be styled onto main image-->
 <?php
+		// You know this is also British slang for paedophile, right?
+		wp_nonce_field( Add_Img_Maps::name(), Add_Img_Maps::name() . '-nonce' );
+		
 		if (ADD_IMG_MAPS_HANDLE_SIZES == true) {
 			$all_sizes = array_keys( $image_metadata['sizes'] );
 		}
@@ -213,6 +228,8 @@ class Add_Img_Maps_Metabox
 		);
 ?>
 <div id='addimgmaps-ctrlmaps' data-size_dimensions='<?php echo json_encode($size_dimensions); ?>' >
+<span class="hide-if-js notice notice-warning inline" 
+		><?php _e('Javascript required.', Add_Img_Maps::name() ); ?></span>
 <?php			
 
 		/*
