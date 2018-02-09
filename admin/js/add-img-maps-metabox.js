@@ -13,7 +13,7 @@ var addImgMapsClosure = function($) {
 	'use strict';
 	
 	var pluginClassName = "add_img_maps", // Not hyphenated because I use hyphens as a separator
-		pluginIdName = "addimgmaps", //shorter used for Ids because they get very long
+		pluginIdName = "addimgmaps", // abbreviated in Ids because they get very long
 		ADD_IMG_MAPS_HANDLE_SIZES = false, // Not used at present.
 		
 		size_dimensions = { }; // Keep track of sizes (for _HANDLE_SIZES)
@@ -75,7 +75,7 @@ var addImgMapsClosure = function($) {
 		// Fail gracefully if unsupported
 		if ( ! dependenciesSatisfied ) {
 			$( '#' + pluginIdName + '-metabox > .inside').get().innerHTML(
-				__('Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin','add-img-maps')
+				'Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin'
 			);
 			return;
 		}
@@ -97,6 +97,26 @@ var addImgMapsClosure = function($) {
 		 * (offsetTop is a number; style.top is a CSS element and needs the 'px' suffix.)
 		 */
 		canvasElement.style.top = jQ_attachmentImage[0].parentElement.offsetTop + 'px';
+		
+		/*
+		 * The canvas will need to be resized when the window resizes.
+		 *
+		 * @access closure, handling 'resize' function
+		 */
+		$(window).bind('resize', function() {
+			// Same three lines as initial setup
+			canvasElement.width = jQ_attachmentImage[0].width;
+			canvasElement.height = jQ_attachmentImage[0].height;
+			canvasElement.style.top = jQ_attachmentImage[0].parentElement.offsetTop + 'px';	
+			if ( $(canvasElement).is(":visible") ) {
+				// Must redraw. Takes an element in the form for that size.
+				var jQ_fieldSetInUse = $("fieldset.add_img_maps-editmap:visible");
+				// In the initial state, the canvas element is technically ':visible', so check fieldset too.
+				if ( jQ_fieldSetInUse.length ) {
+					drawImageMap( jQ_fieldSetInUse.get(0) );
+				}
+			}
+		});
 		
 		/*
 		 * Import the size_dimensions hash.
@@ -137,6 +157,7 @@ var addImgMapsClosure = function($) {
 			//setupMap will open either new or saved map & call openEditMap to make visible.
 			setupMap ( image_size ); 
 		} );
+		
 	}
 	
    /**
