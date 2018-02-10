@@ -1,0 +1,20 @@
+# Test Plan Summary
+
+Must test:
+* header
+* featured
+* content
+
+For whole maps:
+* Create
+* Update
+* Delete
+
+For areas:
+* Create
+* Update
+* Delete
+
+Confirm they turn on and off with options.
+
+Should also uninstall & reinstall.

@@ -30,10 +30,10 @@
 		image = $('img.wp-image-' + image_id + ',img[data-attachmend-id="' + image_id + '"]' );
 		
 		// If that fails, we're trying to guess it from the URL.
-		if ( ! image ) {
-			image = $('img[src="' + map.data('url') + '"]');
+		if ( ! image.length ) {
+			image = $('img[src="' + map.getAttribute('data-url') + '"]');
 		}
-		console.assert( image, 'Not found image.');
+		console.assert( image.length, 'Not found image.');
 		
 		image.attr('usemap', map.name );
 		image.unwrap('a'); // Remove any immediate parent anchor tag. 

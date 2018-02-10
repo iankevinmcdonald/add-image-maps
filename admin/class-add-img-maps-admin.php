@@ -4,8 +4,8 @@
 /**
  * The overarching admin functionality.
  *
- * Defines the plugin name, version, options, and hooks.
  *
+ * Defines the plugin name, version, options, and hooks.
  * @package Add_Img_Maps/admin
  * @author     Ian McDonald <ian@mcdonald.me.uk>
  */

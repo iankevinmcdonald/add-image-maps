@@ -68,7 +68,7 @@ class Add_Img_Maps_Map {
 	public function __construct () {
 		
 		/* Number of arguments should be even, or it takes a hashed object */
-		error_log('Add_Img_Maps_Map->__construct');
+		// error_log('Add_Img_Maps_Map->__construct');
 		$args = func_get_args();
 		$num_args = count($args);
 		
