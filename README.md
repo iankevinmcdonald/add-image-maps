@@ -2,8 +2,7 @@
 
 Wordpress Plugin to implement HTML Image Maps for any image, including headers
 
-`
-Contributors: driannmcdonald
+`Contributors: driannmcdonald
 Tags: display, images, links, imagemaps
 Requires at least: 3.0.1
 Tested up to: 4.9.2
@@ -23,17 +22,7 @@ The plugin allows for featured images and headers. Admins can configure where
 the plugin looks for images with maps, and how it interacts with responsive
 images.
 
-# KEPT FOR IAN
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
-
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
 
 ## Installation 
 
@@ -41,27 +30,30 @@ you put the stable version, in order to eliminate any doubt.
 1. Unzip it.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
-### How to use
+## How to use
 
 1. Choose the image you wish to edit in the library. 
 1. Open it in the attachment edit page. (From "Attachment details", click on "Edit more details")
 1. Click on "create image map for size 'full'"
-1. Add clickable areas, including alt text as well as links.
-
-(This is not a full GUI, but the areas are visible on the image, which is slightly greyed out when
+1. Add clickable areas, including alt text as well as links. (This is not a full GUI, but the areas are visible on the image, which is slightly greyed out when
 you edit the image maps.)
-
 1. Click 'update' to save the image with the map.
-1. Add the image to the desired page (or, set it as a header, if wished)
-1. If the image is in page content (rather than a featured or header image), confirm that it is
-attached to the page in question, either on the attachment editing screen, or the list view of the
-media library.
+1. Either:
+  1. Add the image to the desire page/post, and confirm it is "attached" (in the attachment edit screen or media list view), or
+  1. Make the image the page's featured images, or
+  1. Set the image as a header
 
-## Troubleshooting
+TODO SCREENS:
+* An image map in mid-edit
+* Attachment in the image library (might attach below)
+*   
+  
+  
+## Configuration options
 
-### Where do I add the image map?
+On the Admin settings page for the plugin, you can save execution time by turning off the plugin for the page areas you don't want to use it on. You can also decide whether to turn off the responsive images feature for images with maps.
 
-[screenshots]
+  ## Troubleshooting
 
 ### I've created an image map, and inserted the image into a page, but the image map isn't working.
 
@@ -69,13 +61,13 @@ Add_Img_Maps doesn't search the page HTML to find every image (which would slow 
 
 These are the things to check:
 
-1. Did you add the Image Map to the right instance of the image?
+1. #### Did you add the Image Map to the right instance of the image?
 
-When you add images to a theme, as a header or an icon, Wordpress sometimes creates a new cropped or shrunk image. Those copies do not appear in the media library grid screen, so they're easy to miss. They *are* listed in the Add_Img_Maps box on the attachment edit screen, with a link the *their* attacment edit screen.
+When you add images to a theme, as a header or an icon, Wordpress sometimes creates a new cropped or shrunk image. Those copies do not appear in the media library grid screen, so they're easy to miss. They *are* listed in the Add_Img_Maps box on the attachment edit screen, with a link to *their* attachment edit screen.
 
-2. Is the image attached to the post/page in the Wordpress database?
+2. #### Is the image attached to the post/page in the Wordpress database?
 
-(This question doesn't apply if it's the featured image or the header, which are checked separately.)
+(Skip this if it's the featured image or the header, which are checked separately.)
 
 The Add_Img_Maps box tells you which post/page (if any) the image is attached to. 
 
@@ -83,20 +75,25 @@ You can change which images are attached to which pages if, as an admin, you go 
 
 'Images List' page. [Screenshot B]
 
-> ### What exactly do I mean by 'attached'?
+> ###### What does 'attached' mean?
 > "Attached", in this context, doesn't quite mean exactly the same thing as appearing on the page. By default, the 
 > images "attached" to the post are the ones uploaded whilst editing it,
 > which is why they are listed as "uploaded to this page" in 
 > the post edit screen. Depending which editor you use, you can easily end up putting an image on a post without 
 > "attaching" it. And if you upload an image to a page, and then remove the image, it will still be "attached".
 
-3. Does the site theme include the image ID in its markup?
+3. #### Does the site theme include the image ID in its markup?
 
-Sorry, but this involves looking at the page/posts' code view.
+Unfortunately, solving this involves writing something on the `Text` tab of the post editing screen.
 
-Most themes, when the insert images into pages, include the image's Wordpress ID somewhere in the HTML. (The number on the edit screen address after `post =`). The most popular ways are as the value of an attribute called `data-attachment-id` or a series of CSS classes of the form `wp-image-*id*`, ending in the id number.
+Most themes, when the insert images into pages, include the image's Wordpress ID somewhere in the HTML. (The number on the edit screen address after `post =`). The most popular ways are as the value of an attribute called `data-attachment-id` or a series of CSS classes of the form `wp-image-1234`, ending in the id number.
 
-If your theme doesn't have those, then Add_Img_Maps will try to recognise it by filename, but that's not guaranteed, and you might have to manually add one of those to the HTML page.
+If your theme doesn't have those, then Add_Img_Maps will try to recognise it by filename, but that's not guaranteed, and you might have to manually add one of those to the HTML. If you aren't familiar with the text tab, this is how to do it:
+
+  1. Go to the image edit screen, and copy the image ID number from after `post=` in the web address
+  2. Go to the page/post edit screen
+  3. Go to the text tab, and find the start of the `<img ` tag.
+  4. After '<img ', paste ` data-attachment-id="XXX" `, and replacing XXX with the ID number 
 
 ## Screenshots TODO 
 
@@ -120,12 +117,6 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 # 0.5 =
 * List versions from most recent at top to oldest at bottom.
 
-## Upgrade Notice ##
-
-= 1.0 =
-
-- WHY USERS SHOULD UPGRADE -
-
 ## Interaction with responsive images ##
 
 HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. As far as I can tell, this is a problem with the image maps themselves, and not soluble with this plugin.
@@ -138,16 +129,14 @@ An alternative impelementation of displaying Image Maps (perhaps in CSS & JavaSc
 
 A way to fail more gracefully when the site is being viewed on a device with a smaller screen.
 
-## DELETEABLE brief Markdown Example ##
+# KEPT FOR IAN
 
-Ordered list:
+    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
+if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
+for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
+is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
+your in-development version, without having that information incorrectly disclosed about the current stable version
+that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
 
-1. *Some feature*
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
+    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
+you put the stable version, in order to eliminate any doubt.
