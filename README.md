@@ -32,6 +32,8 @@ images.
 
 ## How to use
 
+![Example of Add_Img_Maps in use](assets/screengrab_editing.jpg)
+
 1. Choose the image you wish to edit in the library. 
 1. Open it in the attachment edit page. (From "Attachment details", click on "Edit more details")
 1. Click on "create image map for size 'full'"
@@ -42,12 +44,6 @@ you edit the image maps.)
   * Add the image to the desire page/post, and confirm it is "attached" (in the attachment edit screen or media list view), or
   * Make the image the page's featured images, or
   * Set the image as a header
-
-TODO SCREENS:
-* An image map in mid-edit
-* Attachment in the image library (might attach below)
-*   
-  
   
 ## Configuration options
 
@@ -73,8 +69,7 @@ The Add_Img_Maps box tells you which post/page (if any) the image is attached to
 
 You can change which images are attached to which pages if, as an admin, you go to the Media Library and choose the list view.
 
-'Images List' page. [Screenshot B]
-
+> ![Example of Media Library screen in list mode](assets/screengrab_attach.jpg)
 > ###### What does 'attached' mean?
 > "Attached", in this context, doesn't quite mean exactly the same thing as appearing on the page. By default, the 
 > images "attached" to the post are the ones uploaded whilst editing it,
