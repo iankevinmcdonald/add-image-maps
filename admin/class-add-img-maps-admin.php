@@ -116,7 +116,7 @@ class Add_Img_Maps_Admin {
 						'map_button_cr'			=> 	__('Add new area', $this->plugin_name),
 
 						'area_button_rm'		=>	__('Delete area', $this->plugin_name),
-						'area_button_add'		=>	__('co-ord pair', $this->plugin_name),
+						'area_button_coord'		=>	__('co-ord pair', $this->plugin_name),
 						
 						'area_placehold_href'	=>	__(
 							'Please enter the web link that the clickable area links to.',

@@ -10,7 +10,7 @@ Stable tag: 4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 `
-# Description
+## Description
 
 This plugin allows authors to turn areas of an image into links by implementing 
 HTML image maps in Wordpress.
@@ -39,9 +39,9 @@ images.
 you edit the image maps.)
 1. Click 'update' to save the image with the map.
 1. Either:
-  1. Add the image to the desire page/post, and confirm it is "attached" (in the attachment edit screen or media list view), or
-  1. Make the image the page's featured images, or
-  1. Set the image as a header
+  * Add the image to the desire page/post, and confirm it is "attached" (in the attachment edit screen or media list view), or
+  * Make the image the page's featured images, or
+  * Set the image as a header
 
 TODO SCREENS:
 * An image map in mid-edit
@@ -51,7 +51,7 @@ TODO SCREENS:
   
 ## Configuration options
 
-On the Admin settings page for the plugin, you can save execution time by turning off the plugin for the page areas you don't want to use it on. You can also decide whether to turn off the responsive images feature for images with maps.
+On the Admin settings page for the plugin, you can save CPU time by turning it off where you don't need it. You can also decide whether to turn off the responsive images feature for images with maps.
 
   ## Troubleshooting
 
@@ -93,7 +93,7 @@ If your theme doesn't have those, then Add_Img_Maps will try to recognise it by 
   1. Go to the image edit screen, and copy the image ID number from after `post=` in the web address
   2. Go to the page/post edit screen
   3. Go to the text tab, and find the start of the `<img ` tag.
-  4. After '<img ', paste ` data-attachment-id="XXX" `, and replacing XXX with the ID number 
+  4. After `<img `, paste ` data-attachment-id="XXX" `, replacing XXX with the ID number 
 
 ## Screenshots TODO 
 
@@ -105,17 +105,13 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 ## Changelog 
 
-# 1.0 
+### 1.0.0 
 
-* Testing and release.
+* Initial release.
 
-# 0.1
+### 0.1.0
 
-* Developing for release.
-
-
-# 0.5 =
-* List versions from most recent at top to oldest at bottom.
+* Initial Development
 
 ## Interaction with responsive images ##
 
