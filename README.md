@@ -109,14 +109,6 @@ If your theme doesn't have those, then Add_Img_Maps will try to recognise it by 
   3. Go to the text tab, and find the start of the `<img ` tag.
   4. After `<img `, paste ` data-attachment-id="XXX" `, replacing XXX with the ID number 
 
-## Screenshots TODO 
-
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
-
 ## Changelog 
 
 ### 1.0.0 
