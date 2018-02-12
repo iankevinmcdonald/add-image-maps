@@ -10,7 +10,7 @@ For whole maps:
 * Update
 * Delete
 
-For areas:
+For areas - CRall three types:
 * Create
 * Update
 * Delete

@@ -18,13 +18,16 @@
  * Plugin Name:       Add Image Maps
  * Plugin URI:        https://github.com/iankevinmcdonald/wordpress-imagemaps/
  * Description:       Enables editors to set HTML5 image maps on images. Displays them, inclding on header images.
- * Version:           0.1.0
+ * Version:           1.0.0
  * Author:            Ian McDonald
  * Author URI:        mcdonald.me.uk
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       add-img-maps
  * Domain Path:       /languages
+ *
+ * @throws			  Unexpected fatal exceptions only are caught and logged
+ *					  to error_log. 
  */
 
 // If this file is called directly, abort.
@@ -46,6 +49,7 @@ define( 'ADD_IMG_MAPS_HANDLE_SIZES', false);
  * The code that runs during plugin activation.
  */
 function activate_add_img_maps() {
+
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-add-img-maps-activator.php';
 	Add_Img_Maps_Activator::activate();
 }

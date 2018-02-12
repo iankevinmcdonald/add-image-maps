@@ -47,7 +47,7 @@ class Add_Img_Maps_Metabox
 			
 			// If this is not an image, bail
 			if ( strncasecmp( $post->post_mime_type, 'image', 5) ) {
-				error_log('Mime type is ' . $post->post_mime_type );
+				// error_log('Mime type is ' . $post->post_mime_type );
 				return $post_id;
 			}
 
@@ -94,7 +94,8 @@ class Add_Img_Maps_Metabox
 						break;
 						
 						default:
-						error_log( "Unrecognised plugin key $field.");
+						// This should not happen, and is an apt error log.
+						error_log( "Add_Img_Maps: Unrecognised input option: $field.");
 					}
 				}
 			}
@@ -193,7 +194,7 @@ class Add_Img_Maps_Metabox
 				Add_Img_Maps::name()
 			);
 			echo '<!-- ' . esc_html($e) . '-->';
-			error_log ( $e );
+			error_log ("Plugin Add_Img_Maps caught Exception: $e");
 			
 		?>	</div></p>			<?php
 
@@ -223,13 +224,13 @@ class Add_Img_Maps_Metabox
 			$all_sizes = array();
 			$sizesWithoutImageMaps = array();
 
-			error_log('Image: ' . print_r( (array) $post, true));
-			error_log('Meta: ' . print_r( $image_metadata, true ));
-	//Canvas might be best created by JS during init; will be superimposed onto main image.
+			//error_log('Image: ' . print_r( (array) $post, true));
+			//error_log('Meta: ' . print_r( $image_metadata, true ));
+			//Canvas will be superimposed onto main image.
 			?>
-	<canvas id="addimgmaps-canvas" class="add_img_maps-canvas"></canvas><!-- Should be styled onto main image-->
+	<canvas id="addimgmaps-canvas" class="add_img_maps-canvas"></canvas>
 	<?php
-			// You know this is also British slang for paedophile, right?
+
 			wp_nonce_field( Add_Img_Maps::name(), Add_Img_Maps::name() . '-nonce' );
 			
 			if (ADD_IMG_MAPS_HANDLE_SIZES == true) {
@@ -433,21 +434,27 @@ class Add_Img_Maps_Metabox
 			// We need to let the editor know that they may be looking for something else.
 			if ( count( $child_images ) ) {
 		?>	<div id="addimgmaps-childimages" class="notice notice-info inline"><p><?php
-				if ( 1 == count( $child_images) ) {
+				echo _n(
 					// translators: singular
-					_e('This image has apparently been used to create another. Is it <em>this</em> to which you wish to add a map?', Add_Img_Maps::name() );
-				} else {
+					'This image has apparently been used to create another. Is it <em>this</em> to which you wish to add a map?', 
 					// translators: plural
-					_e('This image has apparently been used to create others. Is it <em>one of these</em> to which you wish to add a map?', Add_Img_Maps::name() );
-				}
+					'This image has apparently been used to create others. Is it <em>one of these</em> to which you wish to add a map?',
+					count( $child_images ),
+					Add_Img_Maps::name() 
+				);
+				
 		?>		</p><ul>		<?php
 				foreach ( $child_images as $child_image ) {
 		?>			<li>		<?php
-					error_log( print_r( $child_image, true));
-					edit_post_link(									// Echo link to the edit page for image
-						$child_image->post_title ,						// Link text 
-						__('Edit image "', Add_Img_Maps::name() ),	// *translators*: Before link
-						__('"', Add_Img_Maps::name() ),			// *translators*: After link
+					// error_log( print_r( $child_image, true));
+					// Echo link to the edit page for image
+					edit_post_link(
+						// Link text 
+						$child_image->post_title ,	
+						// *translators*: Before link
+						__('Edit image "', Add_Img_Maps::name() ),
+						// *translators*: After link
+						__('"', Add_Img_Maps::name() ),			
 						$child_image->ID
 					);
 		?>			</li>		<?php
@@ -472,7 +479,7 @@ class Add_Img_Maps_Metabox
 				Add_Img_Maps::name()
 			);
 			echo '<!-- ' . esc_html($e) . '-->';
-			error_log ( $e );
+			error_log ("Plugin Add_Img_Maps caught exception during display of metadata box: $e");
 			
 		?>	</div></p>			<?php
 		

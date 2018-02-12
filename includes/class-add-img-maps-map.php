@@ -142,7 +142,7 @@ class Add_Img_Maps_Map {
 						$inputArea['shape'],
 						self::$VALID_SHAPES )
 					) {
-						error_log( sprintf('Invalid shape %s discarded.', $inputArea['shape']));
+					// 	error_log( sprintf('Invalid shape %s discarded.', $inputArea['shape']));
 						continue;
 					}
 					
@@ -389,7 +389,7 @@ class Add_Img_Maps_Map {
 			$this->_validate();
 			return true;
 		} catch (Exception $e) {
-			error_log('Area failed to validate: ' . $e);
+			// error_log('Add_Img_Maps: failed validation' . $e);
 			return false;
 		}
 	}

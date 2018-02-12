@@ -153,7 +153,7 @@ class Add_Img_Maps_Public {
 		?>		</div></p><?php
 			}
 			echo '<!-- ' . esc_html($e) . '-->';
-			error_log ( $e );
+			error_log ("Add_Img_Maps execption caught on public page: $e" );
 			
 		} // end of try/catch 
 	} // end 'the_content' hook
@@ -269,8 +269,33 @@ public function append_maps() {
 			}
 			?></span><?php
 
-			// Also, only enqueue the Javascript for this if it's needed.
-			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/add-img-maps-public.js', array( 'jquery' ), $this->version, true );
+			// Only enqueue the Javascript for this if it's needed.
+			
+			// and if the option is turned on, add the imageMapResizer script first.
+			/**
+			 * Image Map Resizer by David J Bradshaw et al, licensed under MIT Expat license
+			 * See: https://github.com/davidjbradshaw/image-map-resizer/
+			 */
+			if ( $this->add_img_maps_options['imagemapresizer'] ) {
+				wp_enqueue_script(
+					'image-map-resizer',
+					plugin_dir_url( __FILE__ ) . 'js/imageMapResizer.js',
+					array('jquery'),
+					$this->version,
+					true
+				);
+			}
+
+			//error_log( print_r( $this->add_img_maps_options , true ));
+			
+			wp_enqueue_script( 
+				$this->plugin_name, 
+				plugin_dir_url( __FILE__ ) . 'js/add-img-maps-public.js'
+				, array( 'jquery' ), 
+				$this->version, 
+				true
+			);
+			
 		} catch ( Exception $e) { //anything go wrong?
 		
 		//If it failed, record it and mention it to admins
@@ -284,7 +309,7 @@ public function append_maps() {
 		?>		</div></p><?php
 			}
 			echo '<!-- ' . esc_html($e) . '-->';
-			error_log ( $e );
+			error_log ("Plugin Add_Img_Maps caught Exception: $e" );
 			
 		} // end of try/catch 
 	}

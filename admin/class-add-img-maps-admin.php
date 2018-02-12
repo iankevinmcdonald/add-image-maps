@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 
 /**
@@ -240,6 +240,9 @@ class Add_Img_Maps_Admin {
 				$valid['srcset'] = $input['srcset'];
 			}
 		}
+		
+		//My practice is to lose the separator '_' when turning plugin names into HTML ids or  
+		$valid['imagemapresizer'] = (isset($input['imagemapresizer']) && !empty($input['imagemapresizer'])) ? 1: 0;
 		$valid['header'] = (isset($input['header']) && !empty($input['header'])) ? 1 : 0;
 		$valid['content'] = (isset($input['content']) && !empty($input['content'])) ? 1 : 0;
 		$valid['thumbnail'] = (isset($input['thumbnail']) && !empty($input['thumbnail'])) ? 1 : 0;

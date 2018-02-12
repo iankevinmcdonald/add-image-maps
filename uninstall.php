@@ -35,4 +35,3 @@ unregister_setting( 'add-img-maps', 'add-img-maps' ); // Add_Img_Maps::$PLUGIN_N
 // Remove the post metadata
 
 delete_post_meta_by_key( '_add_img_maps' ); // Add_Img_Maps::$PLUGIN_KEY
-

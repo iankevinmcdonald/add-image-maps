@@ -18,13 +18,15 @@ class Add_Img_Maps_Activator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
+	public static function activate() {	
+	
 
 		register_setting(Add_Img_Maps::get_plugin_name() , Add_Img_Maps::get_plugin_name(), array(
 			'default'=> array(
 				'header' => 1,
 				'content' => 1,
 				'thumbnail' => 1,
+				'imagemapresizer' => 1,
 				'srcset' => 'off',
 				)
 		));
