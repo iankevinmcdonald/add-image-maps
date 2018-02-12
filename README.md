@@ -16,12 +16,13 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 This plugin allows authors to turn areas of an image into links by implementing 
 HTML image maps in Wordpress.
 
-Authors can enter the co-ordinates of image areas on the editing page and see 
-them outlined on the image. They will then appear in public.
+Authors can set up clickable areas on the image editing page, and see 
+them outlined on the image. Images on the public-facing pages can use the
+map saved with them.
 
-The plugin allows for featured images and headers. Admins can configure where
-the plugin looks for images with maps, and how it interacts with responsive
-images.
+The plugin can attach image maps to featured and header images as well as images
+attached to content. Admins can configure where the plugin looks for images 
+with maps, and how it interacts with responsive images.
 
 ## Installation 
 
@@ -46,10 +47,29 @@ you edit the image maps.)
   
 ## Configuration options
 
-On the Admin settings page for the plugin, you can save CPU time by turning it off where you don't need it. You can also decide whether to turn off the responsive images feature for images with maps.
+On the Admin settings page for the plugin, you can save CPU time by turning it 
+off where you don't need it. You can also decide whether to turn off the Image 
+Maps Resizer that makes image maps responsive, and (for images with maps)
+WordPress's own responsive images feature.
 
   ## Troubleshooting
 
+### Interaction with responsive images ##
+
+HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. This is a problem with the image maps themselves. 
+
+Wordpress 4.4 onwards includes srcset and sizes attributes to make all images
+responsive. So this plugin takes a couple of steps to solve this, both of which
+can be turned off or on in the plugin settings page.
+
+Firstly, it optionally turns off the responsiveness for images with maps, by
+deleting their srcset and sizes attributes.
+
+Secondly, it incorporates David Bradshaw's __Image Map Resizer__ script to keep
+image maps the same size as their images. This is useful not just for responsive
+images, but for every image that is displayed in other than full size.  
+  
+  
 ### I've created an image map, and inserted the image into a page, but the image map isn't working.
 
 Add_Img_Maps doesn't search the page HTML to find every image (which would slow the plugin down). Instead, it asks Wordpress which images are attached to it (or featured, or the header).
@@ -107,21 +127,6 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 ### 0.1.0
 
 * Initial Development
-
-## Interaction with responsive images ##
-
-HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. This is a problem with the image maps themselves. 
-
-Wordpress 4.4 onwards includes srcset and sizes attributes to make all images
-responsive. So this plugin takes a couple of steps to solve this, both of which
-can be turned off or on in the plugin settings page.
-
-Firstly, it optionally turns off the responsiveness for images with maps, by
-deleting their srcset and sizes attributes.
-
-Secondly, it incorporates David Bradshaw's __Image Map Resizer__ script to keep
-image maps the same size as their images. This is useful not just for responsive
-images, but for every image that is displayed in other than full size.
 
 ## Credits ##
 
