@@ -2,14 +2,15 @@
 
 Wordpress Plugin to implement HTML Image Maps for any image, including headers
 
-`Contributors: driannmcdonald
+```
+Contributors: driannmcdonald
 Tags: display, images, links, imagemaps
 Requires at least: 3.0.1
-Tested up to: 4.9.2
-Stable tag: 4.3
-License: GPLv2 or later
+Tested up to: 4.9.4
+License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-`
+```
+
 ## Description
 
 This plugin allows authors to turn areas of an image into links by implementing 
@@ -21,8 +22,6 @@ them outlined on the image. They will then appear in public.
 The plugin allows for featured images and headers. Admins can configure where
 the plugin looks for images with maps, and how it interacts with responsive
 images.
-
-
 
 ## Installation 
 
@@ -103,6 +102,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 ### 1.0.0 
 
 * Initial release.
+* Incorporated Image Map Resize
 
 ### 0.1.0
 
@@ -110,24 +110,20 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 ## Interaction with responsive images ##
 
-HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. As far as I can tell, this is a problem with the image maps themselves, and not soluble with this plugin.
+HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. This is a problem with the image maps themselves. 
 
-Wordpress 4.4 onwards includes srcset and sizes attributes. By default, Add Image Maps turns this off for images with maps added.
+Wordpress 4.4 onwards includes srcset and sizes attributes to make all images
+responsive. So this plugin takes a couple of steps to solve this, both of which
+can be turned off or on in the plugin settings page.
 
-## Feature Wantlist ##
+Firstly, it optionally turns off the responsiveness for images with maps, by
+deleting their srcset and sizes attributes.
 
-An alternative impelementation of displaying Image Maps (perhaps in CSS & JavaScript) that plays well with Responsive Images.
+Secondly, it incorporates David Bradshaw's __Image Map Resizer__ script to keep
+image maps the same size as their images. This is useful not just for responsive
+images, but for every image that is displayed in other than full size.
 
-A way to fail more gracefully when the site is being viewed on a device with a smaller screen.
+## Credits ##
 
-# KEPT FOR IAN
-
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
-
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+[Image Map Resizer](https://github.com/davidjbradshaw/image-map-resizer) is 
+&copy; David Bradshaw, and incorporated under an MIT Expat license.
