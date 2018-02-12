@@ -40,7 +40,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently plugin version.
  */
-define( 'ADD_IMG_MAPS_VERSION', '0.1.0' );
+define( 'ADD_IMG_MAPS_VERSION', '1.0.0' );
 
 /**
  * Whether we can HANDLE_SIZES yet
