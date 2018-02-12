@@ -27,7 +27,9 @@
  * Domain Path:       /languages
  *
  * @throws			  Unexpected fatal exceptions only are caught and logged
- *					  to error_log. 
+ *					  to error_log (or console.log in the case of Javascript).
+ *					  Thus the plugin *shouldn't* have any errors, but if it
+ *			  		  does, they will be easier to fix before resubmission.
  */
 
 // If this file is called directly, abort.
