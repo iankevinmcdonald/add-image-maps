@@ -12,16 +12,11 @@ Wordpress Plugin to implement HTML Image Maps for any image, including headers
 
 == Description ==
 
-This plugin allows authors to turn areas of an image into links by implementing 
-HTML image maps in Wordpress.
+This plugin allows authors to turn areas of an image into links by implementing HTML image maps in Wordpress.
 
-Authors can set up clickable areas on the image editing page, and see 
-them outlined on the image. Images on the public-facing pages can use the
-map saved with them.
+Authors can set up clickable areas on the image editing page, and see them outlined on the image. Images on the public-facing pages can use the map saved with them.
 
-The plugin can attach image maps to featured and header images as well as images
-attached to content. Admins can configure where the plugin looks for images 
-with maps, and how it interacts with responsive images.
+The plugin can attach image maps to featured and header images as well as images attached to content. Admins can configure where the plugin looks for images with maps, and how it interacts with responsive images.
 
 == Installation ==
 
@@ -46,10 +41,7 @@ you edit the image maps.)
   
 = Configuration options =
 
-On the Admin settings page for the plugin, you can save CPU time by turning it 
-off where you don't need it. You can also decide whether to turn off the Image 
-Maps Resizer that makes image maps responsive, and (for images with maps)
-WordPress's own responsive images feature.
+On the Admin settings page for the plugin, you can save CPU time by turning it off where you don't need it. You can also decide whether to turn off the Image Maps Resizer that makes image maps responsive, and (for images with maps) WordPress's own responsive images feature.
 
 == Frequently Asked Questions ==
 
@@ -57,17 +49,11 @@ WordPress's own responsive images feature.
 
 HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. This is a problem with the image maps themselves. 
 
-Wordpress 4.4 onwards includes srcset and sizes attributes to make all images
-responsive. So this plugin takes a couple of steps to solve this, both of which
-can be turned off or on in the plugin settings page.
+Wordpress 4.4 onwards includes srcset and sizes attributes to make all images responsive. So this plugin takes a couple of steps to solve this, both of which can be turned off or on in the plugin settings page.
 
-Firstly, it optionally turns off the responsiveness for images with maps, by
-deleting their srcset and sizes attributes.
+Firstly, it optionally turns off the responsiveness for images with maps, by deleting their srcset and sizes attributes.
 
-Secondly, it incorporates David Bradshaw's __Image Map Resizer__ script to keep
-image maps the same size as their images. This is useful not just for responsive
-images, but for every image that is displayed in other than full size.  
-  
+Secondly, it incorporates David Bradshaw's __Image Map Resizer__ script to keep image maps the same size as their images. This is useful not just for responsive images, but for every image that is displayed in other than full size.  
   
 = Why isn't my image map working? =
 
@@ -75,11 +61,11 @@ Add_Img_Maps doesn't search the page HTML to find every image (which would slow 
 
 These are the things to check:
 
-1. **Did you add the Image Map to the right instance of the image?**
+**Did you add the Image Map to the right instance of the image?**
 
 When you add images to a theme, as a header or an icon, Wordpress sometimes creates a new cropped or shrunk image. Those copies do not appear in the media library grid screen, so they're easy to miss. They *are* listed in the Add_Img_Maps box on the attachment edit screen, with a link to *their* attachment edit screen.
 
-2. **Is the image attached to the post/page in the Wordpress database?**
+**Is the image attached to the post/page in the Wordpress database?**
 
 (Skip this if it's the featured image or the header, which are checked separately.)
 
@@ -95,7 +81,7 @@ You can change which images are attached to which pages if, as an admin, you go 
 > the post edit screen. Depending which editor you use, you can easily end up putting an image on a post without 
 > "attaching" it. And if you upload an image to a page, and then remove the image, it will still be "attached".
 
-3. **Does the site theme include the image ID in its markup?**
+**Does the site theme include the image ID in its markup?**
 
 Unfortunately, solving this involves writing something on the `Text` tab of the post editing screen.
 
@@ -110,6 +96,8 @@ If your theme doesn't have those, then Add_Img_Maps will try to recognise it by 
 
 == Changelog ==
 
+The working repository, including for new issues, is [on GitHub](https://github.com/iankevinmcdonald/wordpress-imagemaps).
+
 = 1.0.0 =
 
 * Initial release.
@@ -121,5 +109,4 @@ If your theme doesn't have those, then Add_Img_Maps will try to recognise it by 
 
 == Credits ==
 
-[Image Map Resizer](https://github.com/davidjbradshaw/image-map-resizer) is 
-&copy; David Bradshaw, and incorporated under an MIT Expat license.
+[Image Map Resizer](https://github.com/davidjbradshaw/image-map-resizer) is &copy; David Bradshaw, and incorporated under an MIT Expat license.
