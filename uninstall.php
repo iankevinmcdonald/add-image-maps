@@ -28,9 +28,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-//delete the options. BUG: This is expected to delete the lines from the table, and it doesn't. Impact: zero.
-unregister_setting( 'add-img-maps', 'add-img-maps' ); // Add_Img_Maps::$PLUGIN_NAME
-
+//delete the options. 
+/* NOT unregister_setting( 'add-img-maps', 'add-img-maps' ); */ 
+delete_option('add-img-maps');  // = Add_Img_Maps::$PLUGIN_NAME; added in v1.0.1
 
 // Remove the post metadata
 
