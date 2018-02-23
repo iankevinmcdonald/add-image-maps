@@ -222,7 +222,25 @@ class Add_Img_Maps_Admin {
 	
 	public function options_update() {
 		/* Saving in one chunk, so the second argument is the plugin name rather than a setting. */
-		register_setting($this->plugin_name, $this->plugin_name, array($this, 'validate'));
+		/* Called by the admin_init hook; expanded v1.0.1 */
+		register_setting(
+			$this->plugin_name, 
+			$this->plugin_name, 
+			array(
+				'default'=> array(
+					'header' => 1,
+					'content' => 1,
+					'thumbnail' => 1,
+					'imagemapresizer' => 1,
+					'srcset' => 'off',
+				),
+			'sanitize_callback' => array( 
+				$this, 
+				'validate'
+				),
+			'description' => 'Options for the Add Image Maps plugin.',
+			)
+		);
 	}
 	
 	/**
@@ -249,6 +267,6 @@ class Add_Img_Maps_Admin {
 		
 		//error_log(' $valid ' . var_export($valid, true));		
 		return $valid;
- }
+	}
 
 }

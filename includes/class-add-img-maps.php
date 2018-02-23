@@ -184,9 +184,11 @@ class Add_Img_Maps {
 		// Pasted from https://scotch.io/tutorials/how-to-build-a-wordpress-plugin-part-1
 		// Add menu item
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_admin_menu' );
-		// Save/Update our plugin options
+
+		// Register our plugin options - updating done automatically by settings pages.
 		$this->loader->add_action('admin_init', $plugin_admin, 'options_update');
-			// Add Settings link to the plugin
+
+		// Add Settings link to the plugin
 		$plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->get_plugin_name() . '.php' );
 		$this->loader->add_filter( 'plugin_action_links_' . $plugin_basename, $plugin_admin, 'add_action_links' );
 		

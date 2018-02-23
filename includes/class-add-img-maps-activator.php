@@ -20,7 +20,7 @@ class Add_Img_Maps_Activator {
 	 */
 	public static function activate() {	
 	
-
+/*
 		register_setting(Add_Img_Maps::get_plugin_name() , Add_Img_Maps::get_plugin_name(), array(
 			'default'=> array(
 				'header' => 1,
@@ -28,8 +28,14 @@ class Add_Img_Maps_Activator {
 				'thumbnail' => 1,
 				'imagemapresizer' => 1,
 				'srcset' => 'off',
-				)
-		));
+				),
+			'sanitize_callback' => array( 
+				'Add_Img_Maps_Admin', 
+				'validate'
+				),
+			'description' => 'Options for the Add Image Maps plugin.',
+			)
+		); */
 	}
 
 }
