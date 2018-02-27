@@ -1,11 +1,6 @@
 <?php
 
-// Commented this out because it found no tests & I'm not sure why.
-// namespace Add_Img_Maps\Tests; 
-
-require_once ( dirname( __DIR__ ) . '/includes/class-add-img-maps-map.php'); // kludge before this is all organised neatly
-// use PHPUnit_Framework_TestCase;
-// use WP_UnitTestCase;
+require_once ( dirname( __DIR__ ) . '/includes/class-add-img-maps-map.php'); 
 
 class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	
@@ -22,13 +17,10 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 			$this->assertTrue(false,$e);
 		}
 		$this->assertTrue( count($map1) > 0, var_export( $map1, TRUE ) );
-// Can't because attributes are protected
-//		$this->assertObjectHasAttribute( 'alt', $map1);
 	}
 
 	public function test_map_as_HTML() {
 		// Should pass; takes a post_id
-		// I'll just let this throw an exception
 
 		$map = new Add_Img_Maps_Map ( 
 				// Normal working imagemap
@@ -212,7 +204,8 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 		);
 		$this->assertEmpty( $map1);
 	}
-	
+
+//	Used to locate a silent crash during the test script.	
 /*	public function test_create_map_deliberate_fail() {
 		$this->assertTrue( false );
 	}
@@ -233,9 +226,10 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 			$this->assertRegExp( '/Test rectangle/', $json_map_code );
 			//JSON doesn't store the object type.
 			$this->assertTrue( json_last_error() == JSON_ERROR_NONE, json_last_error_msg() );
-			
-//			$this->assertTrue( false, "INPUT " . print_r( $map1_as_array, true) . 'JSON=' . $json_map_code ); //for debug info
 
+//	Debugging silent crash			
+//			$this->assertTrue( false, "INPUT " . print_r( $map1_as_array, true) . 'JSON=' . $json_map_code );
+ 
 			$json_decoded = json_decode( $json_map_code, true ); // create array rather than StdClass object.
 
 			$this->assertTrue( json_last_error() == JSON_ERROR_NONE, json_last_error_msg() );
@@ -243,10 +237,10 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 			$this->assertTrue( gettype( $json_decoded ) == 'array', "json_decoded $json_decoded not array. Val:" . print_r( $json_decoded, true) );
 			$json_map = new Add_Img_Maps_Map ( $json_decoded );
 			$this->assertTrue( $json_map == $map1 ); 
-/* */		} catch (Exception $e) {
+		} catch (Exception $e) {
 			$this->assertTrue(false,$e);
 		}
-		//$this->assertTrue( count($map1) > 0, "map1 $map1 is empty" );
+
 	}
 	
 }
