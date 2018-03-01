@@ -23,7 +23,7 @@ Javascript then attaches the maps to the images, where possible.
 
 ## How to use
 
-![Example of Add_Img_Maps in use](assets/screengrab_editing.jpg)
+![Example of Add_Img_Maps in use](assets/screenshot-1.jpg)
 
 1. Choose the image you wish to edit in the library. 
 1. Open it in the attachment edit page. (From "Attachment details", click on "Edit more details")
