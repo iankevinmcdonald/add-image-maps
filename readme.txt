@@ -2,17 +2,17 @@
 Contributors: driannmcdonald, davidjbradshaw
 Tags: display, images, links, imagemaps
 Requires at least: 3.0
-Requires PHP: 5.3
+Requires PHP: 7.4
 Tested up to: 4.9
 License: GPLv2
 Stable Tag: trunk
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Wordpress Plugin to implement HTML Image Maps for any image, including headers
+WordPress Plugin to implement HTML Image Maps for any image, including headers
 
 == Description ==
 
-This plugin allows authors to turn areas of an image into links by implementing HTML image maps in Wordpress.
+This plugin allows authors to turn areas of an image into links by implementing HTML image maps in WordPress.
 
 Authors can set up clickable areas on the image editing page, and see them outlined on the image. Images on the public-facing pages can use the map saved with them.
 
@@ -51,7 +51,7 @@ On the Admin settings page for the plugin, you can save CPU time by turning it o
 
 HTML Image Maps don't play well with responsive images; their dimensions are absolute, and they don't scale up or down when CSS resizes the image. This is a problem with the image maps themselves. 
 
-Wordpress 4.4 onwards includes srcset and sizes attributes to make all images responsive. So this plugin takes a couple of steps to solve this, both of which can be turned off or on in the plugin settings page.
+WordPress 4.4 onwards includes srcset and sizes attributes to make all images responsive. So this plugin takes a couple of steps to solve this, both of which can be turned off or on in the plugin settings page.
 
 Firstly, it optionally turns off the responsiveness for images with maps, by deleting their srcset and sizes attributes.
 
@@ -59,15 +59,15 @@ Secondly, it incorporates David Bradshaw's __Image Map Resizer__ script to keep 
   
 = Why isn't my image map working? =
 
-*Add Image Maps* doesn't search the page HTML to find every image (which would slow the plugin down). Instead, it asks Wordpress which images are attached to the post/page (or featured, or the header). Unfortunately, depending on the editor you use, it's possible to add an image to post or page content bypassing the WordPress paperwork that this plugin relies on.
+*Add Image Maps* doesn't search the page HTML to find every image (which would slow the plugin down). Instead, it asks WordPress which images are attached to the post/page (or featured, or the header). Unfortunately, depending on the editor you use, it's possible to add an image to post or page content bypassing the WordPress paperwork that this plugin relies on.
 
 These are the things to check:
 
 **Did you add the Image Map to the right instance of the image?**
 
-When you add images to a theme, as a header or an icon, Wordpress sometimes creates a new cropped or shrunk image. Those copies do not appear in the media library grid screen, so they're easy to miss. They *are* listed in the *Add Image Maps* box on the attachment edit screen, with a link to *their* attachment edit screen.
+When you add images to a theme, as a header or an icon, WordPress sometimes creates a new cropped or shrunk image. Those copies do not appear in the media library grid screen, so they're easy to miss. They *are* listed in the *Add Image Maps* box on the attachment edit screen, with a link to *their* attachment edit screen.
 
-**Is the image attached to the post/page in the Wordpress database?**
+**Is the image attached to the post/page in the WordPress database?**
 
 (Skip this if it's the featured image or the header, which are checked separately.)
 
@@ -81,7 +81,7 @@ You can change which images are attached to which pages if, as an admin, you go 
 >
 > "Attached", in this context, doesn't quite mean exactly the same thing as appearing on the page. 
 > 
-> By default, the images "attached" to the post are the ones uploaded whilst editing it, which is why they are listed as "uploaded to this page" in the post edit screen. Depending which editor you use, you can easily end up putting an image on a post without "attaching" it. And if you upload an image to a page, and then remove the image, it will still be "attached".
+> By default, the images "attached" to the post are the ones uploaded whilst editing it, which is why they are listed as "uploaded to this page" in the post edit screen. Depending on which editor you use, you can easily end up putting an image on a post without "attaching" it. And if you upload an image to a page, and then remove the image, it will still be "attached".
 >
 > You can see which images are attached to what quite clearly [on the Media Library screen in List mode (jpg)](https://ps.w.org/add-image-maps/assets/screengrab_attach.jpg).
 
@@ -93,7 +93,7 @@ You can change which images are attached to which pages if, as an admin, you go 
 
 Unfortunately, solving this involves writing something on the `Text` tab of the post editing screen.
 
-Most themes, when the insert images into pages, include the image's Wordpress ID somewhere in the HTML. (The number on the edit screen address after `post =`). The most popular ways are as the value of an attribute called `data-attachment-id` or a series of CSS classes of the form `wp-image-1234`, ending in the id number.
+Most themes, when the insert images into pages, include the image's WordPress ID somewhere in the HTML. (The number on the edit screen address after `post =`). The most popular ways are as the value of an attribute called `data-attachment-id` or a series of CSS classes of the form `wp-image-1234`, ending in the id number.
 
 If your theme doesn't have those, then *Add Image Maps* will try to recognise it by filename, but that's not guaranteed, and you might have to manually add one of those to the HTML. If you aren't familiar with the text tab, this is how to do it:
 
@@ -104,7 +104,7 @@ If your theme doesn't have those, then *Add Image Maps* will try to recognise it
 
 == Changelog ==
 
-The working repository, including for new issues, is [on GitHub](https://github.com/iankevinmcdonald/wordpress-imagemaps).
+The working repository, including for new issues, is [on GitHub](https://github.com/iankevinmcdonald/WordPress-imagemaps).
 
 = 1.0.0 =
 
