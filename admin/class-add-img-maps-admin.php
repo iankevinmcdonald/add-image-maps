@@ -1,6 +1,6 @@
 <?php
 
-
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-add-img-maps-parent.php';
 /**
  * The overarching admin functionality.
  *
@@ -9,40 +9,7 @@
  * @package Add_Img_Maps/admin
  * @author     Ian McDonald <ian@mcdonald.me.uk>
  */
-class Add_Img_Maps_Admin {
-
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
-
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
-
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
-
-		$this->plugin_name = $plugin_name;
-		$this->version = $version;
-        $this->add_img_maps_options = get_option($this->plugin_name);
-
-	}
+class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 
 	/**
 	 * Register the stylesheets for the admin area.
@@ -82,61 +49,61 @@ class Add_Img_Maps_Admin {
 					) {
 
 				wp_enqueue_style( 
-					$this->plugin_name . '-metabox', 
+					self::PLUGIN_NAME . '-metabox',
 					plugin_dir_url( __FILE__ ) . 'css/add-img-maps-metabox.css', 
 					array(), 
-					$this->version, 
+					self::PLUGIN_VERSION,
 					'all' 
 				);
 				wp_enqueue_script(
-					$this->plugin_name . '-metabox', 
+					self::PLUGIN_NAME . '-metabox',
 					plugin_dir_url( __FILE__ ) . 'js/add-img-maps-metabox.js', 
 					array( 'jquery' ), 
-					$this->version
+					self::PLUGIN_VERSION
 				); 
 				// Set up button labels and other internationalisable text
 				wp_localize_script(
-					$this->plugin_name . '-metabox',
-					//str_replace('-', '',$this->plugin_name) . '_metabox_i18n', //The variable
+					self::PLUGIN_NAME . '-metabox',
+					//str_replace('-', '',self::PLUGIN_NAME) . '_metabox_i18n', //The variable
 					'addimgmaps_metabox_i18n', //The variable
 					array(
-						'please_upgrade' 		=>	__('Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin', $this->plugin_name),
+						'please_upgrade' 		=>	__('Please upgrade your browser to one that supports HTML5 to use the editing aspects of this plugin', self::PLUGIN_NAME),
 						
-						'map_button_rm' 		=>	__('Delete whole map', $this->plugin_name),
+						'map_button_rm' 		=>	__('Delete whole map', self::PLUGIN_NAME),
 						
 						// translators: this is the image size (which is a WP term and not translated)
 						'map_button_rm2ed' 		=>	__('Cancel deletion and re-open "%s" map',
-														$this->plugin_name),
+														self::PLUGIN_NAME),
 														
-/* for _HANDLE_SIZES	'map_button_ed2close	=>	__('Pause editing', $this->plugin_name),
-						'map_button_close2ed	=>	__('Re-open "%s" map for editing', $this->plugin_name),
+/* for _HANDLE_SIZES	'map_button_ed2close	=>	__('Pause editing', self::PLUGIN_NAME),
+						'map_button_close2ed	=>	__('Re-open "%s" map for editing', self::PLUGIN_NAME),
  */
 					
-						'map_button_close'		=>	__('Cancel', $this->plugin_name),
-						'map_button_cr'			=> 	__('Add new area', $this->plugin_name),
+						'map_button_close'		=>	__('Cancel', self::PLUGIN_NAME),
+						'map_button_cr'			=> 	__('Add new area', self::PLUGIN_NAME),
 
-						'area_button_rm'		=>	__('Delete area', $this->plugin_name),
-						'area_button_coord'		=>	__('co-ord pair', $this->plugin_name),
+						'area_button_rm'		=>	__('Delete area', self::PLUGIN_NAME),
+						'area_button_coord'		=>	__('co-ord pair', self::PLUGIN_NAME),
 						
 						'area_placehold_href'	=>	__(
 							'Please enter the web link that the clickable area links to.',
-							$this->plugin_name),
+							self::PLUGIN_NAME),
 						'area_placehold_alt'	=>	__(
 							"Please enter alternative text for people who don't see the image.",
-							$this->plugin_name),
+							self::PLUGIN_NAME),
 							
 						//translators: will be prefixed with unicode square/circle/star characters
-						'shape_rect'			=>	__('Rectangle', $this->plugin_name),
-						'shape_circle'			=>	__('Circle',	$this->plugin_name),
-						'shape_poly'			=>	__('Polygon',	$this->plugin_name),
+						'shape_rect'			=>	__('Rectangle', self::PLUGIN_NAME),
+						'shape_circle'			=>	__('Circle',	self::PLUGIN_NAME),
+						'shape_poly'			=>	__('Polygon',	self::PLUGIN_NAME),
 						/* a mathematical italic 'r' for radius, invisible in some monospace charsets */
-						'shape_label_r'			=>	__('𝑟',			$this->plugin_name),
+						'shape_label_r'			=>	__('𝑟',			self::PLUGIN_NAME),
 						/* the x and y co-ordinate labels are arrows, so pre-internationalised */
 						/* Only used on title attribute; the label is an icon */
-						'shape_coord_rm'		=>	__('Delete co-ordinates', $this->plugin_name),
+						'shape_coord_rm'		=>	__('Delete co-ordinates', self::PLUGIN_NAME),
 						
 						/* Vars. Translators: do not translate */
-						'plugin_name'			=>	$this->plugin_name, 
+						'plugin_name'			=>	self::PLUGIN_NAME, 
 						'plugin_id_name'		=>	Add_Img_Maps::attr_prefix(), 
 						'ADD_IMG_MAPS_HANDLE_SIZES'
 												=>	false,
@@ -166,7 +133,7 @@ class Add_Img_Maps_Admin {
 		 */
 
 		 // Accordion.JS would be needed to run the Accordion - see https://core.trac.wordpress.org/ticket/23449
-		// wp_enqueue_script( $this->plugin_name, admin_url( 'js/accordion.js' ), array( ), $this->version, false );
+		// wp_enqueue_script( self::PLUGIN_NAME, admin_url( 'js/accordion.js' ), array( ), self::PLUGIN_VERSION, false );
 		
 		
 
@@ -184,7 +151,7 @@ class Add_Img_Maps_Admin {
      * Add a settings page for this plugin to the Settings menu.
      *
      */
-    add_options_page( 'Add Image Maps options', 'Add Image Maps', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page')
+    add_options_page( 'Add Image Maps options', 'Add Image Maps', 'manage_options', self::PLUGIN_NAME, array($this, 'display_plugin_setup_page')
     );
 }
 
@@ -199,7 +166,7 @@ class Add_Img_Maps_Admin {
 		*  Documentation : https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
 		*/
 	   $settings_link = array(
-		'<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_name ) . '">' . __('Settings', $this->plugin_name) . '</a>',
+		'<a href="' . admin_url( 'options-general.php?page=' . self::PLUGIN_NAME ) . '">' . __('Settings', self::PLUGIN_NAME) . '</a>',
 	   );
 	   return array_merge(  $settings_link, $links );
 
@@ -224,8 +191,8 @@ class Add_Img_Maps_Admin {
 		/* Saving in one chunk, so the second argument is the plugin name rather than a setting. */
 		/* Called by the admin_init hook; expanded v1.0.1 */
 		register_setting(
-			$this->plugin_name, 
-			$this->plugin_name, 
+			self::PLUGIN_NAME, 
+			self::PLUGIN_NAME, 
 			array(
 				'default'=> array(
 					'header' => 1,
