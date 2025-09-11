@@ -1,17 +1,24 @@
 <?php
 
-// Based on https://engineering.hmn.md/guides/writing-code/writing-tests/
-// and https://codesymphony.co/writing-wordpress-plugin-unit-tests/
+/**
+ * PHPUnit Bootstrap file, based on
+ * * sample plugin
+ * * https://engineering.hmn.md/guides/writing-code/writing-tests/
+ * * https://codesymphony.co/writing-wordpress-plugin-unit-tests/
+ */
 
-namespace Add_Img_Maps\Tests;
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Get tests directory from environment, but provide a default if needed.
 // For the sake of consistency, remove a trailing white slash
 $_tests_dir = rtrim( getenv( 'WP_TESTS_DIR' ), '/' );
 
 if ( ! $_tests_dir ) {
-	$_tests_dir = '/home/ian/wordpress-dev/trunk/tests/phpunit';
-//	$_tests_dir = '/usr/share/wordpress/wp-content/plugins/add-img-maps/tests';
+    $_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+}
+if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
+    echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?";
+    exit( 1 );
 }
 
 // Give access to tests_add_filter() function.
@@ -26,7 +33,8 @@ function manually_load_plugin() {
 	 * which means this isn't generalisable */
 	require dirname( __DIR__ ) . '/add-img-maps.php';
 }
-tests_add_filter( 'muplugins_loaded', __NAMESPACE__ . '\\manually_load_plugin' );
+
+tests_add_filter( 'muplugins_loaded', '\\manually_load_plugin' );
 
 /**
  * Sets up the WordPress test environment.

@@ -44,6 +44,8 @@ class Add_Img_Maps_Public {
 
 	private $images = array();
 
+    protected $add_img_maps_options;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *

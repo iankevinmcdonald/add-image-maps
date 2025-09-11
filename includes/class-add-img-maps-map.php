@@ -47,7 +47,7 @@ class Add_Img_Maps_Map {
 	 * Create a new Map object. There are three possible input formats:
 	 *
 	 * **A list of array attributes**
-	 * @param	string	$shape	A valid 'shape' element value (rect¦poly¦circle).
+	 * @param	string	$shape	A valid 'shape' element value (rectï¿½polyï¿½circle).
 	 * @param	array	$coords	A list of co-ordinates
 	 * @param	string	$alt	The alt attribute for the area
 	 * @param	string	$href	The href attribute for the area
@@ -148,7 +148,7 @@ class Add_Img_Maps_Map {
 					
 					// Validate the co-ordinate count
 					if ( ! $this->_coords_apt_for_shape( count($coords), $inputArea['shape'] ) ) {
-						throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
+						throw new Exception("Tried to create new image map with shape {$shape} but miscounted co-ords {$coords}");
 					}					
 					
 					// Create the area
@@ -197,7 +197,7 @@ class Add_Img_Maps_Map {
 				// Second part is the co-ordinates 
 				$coords = array_shift($args);
 				if ( ! $this->_coords_apt_for_shape( count($coords), $shape ) ) {
-					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords ${coords}");
+					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords {$coords}");
 				}
 				
 				// Final parts are the Alt text & link. Pre-escaped /
