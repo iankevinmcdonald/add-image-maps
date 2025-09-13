@@ -16,7 +16,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 		} catch (Exception $e) {
 			$this->assertTrue(false,$e);
 		}
-		$this->assertTrue( count($map1) > 0, var_export( $map1, TRUE ) );
+		$this->assertNotEmpty( $map1, var_export( $map1, TRUE ) );
 	}
 
 	public function test_map_as_HTML() {
@@ -29,11 +29,11 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 				"poly" , array(25,0,45,5,35,15), 'Test polygon', 'http://t.co/'
 		); 
 		$elementId = Add_Img_Maps_Map::get_map_id( 314 );
-		$this->assertRegExp( '/314-full/' , $elementId );
+		$this->assertMatchesRegularExpression( '/314-full/' , $elementId );
 		$attrs = array( 'id' => $elementId );
 		$element = $map->get_HTML( $attrs );
-		$this->assertRegExp( '/<map .+<\/map>/' , $element );
-		$this->assertRegExp( '/314-full/' , $element );
+		$this->assertMatchesRegularExpression( '/<map .+<\/map>/' , $element );
+		$this->assertMatchesRegularExpression( '/314-full/' , $element );
 	}
 	
 	// Check the error checking
@@ -135,9 +135,9 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 			$this->assertTrue( is_string( $id ) );
 			$element = $map1->get_HTML( 
 				array( 'id' => $id ) ) ;
-			$this->assertRegExp( '/98/' , $element );
-			$this->assertRegExp( '/real test/' , $element );
-			$this->assertNotRegExp( '/328/', $element); // The fake shape should have been rejected
+			$this->assertMatchesRegularExpression( '/98/' , $element );
+			$this->assertMatchesRegularExpression( '/real test/' , $element );
+			$this->assertDoesNotMatchRegularExpression( '/328/', $element); // The fake shape should have been rejected
 /*	*/	
 		} catch (Exception $e) {
 			$this->assertTrue(false,$e);
@@ -223,7 +223,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 			$map1_as_array = $map1->as_array();
 			$json_map_code = json_encode( $map1_as_array); //Use associative array, not object
 			$this->assertNotEquals( $json_map_code, '{}', print_r($map1, true) );
-			$this->assertRegExp( '/Test rectangle/', $json_map_code );
+			$this->assertMatchesRegularExpression( '/Test rectangle/', $json_map_code );
 			//JSON doesn't store the object type.
 			$this->assertTrue( json_last_error() == JSON_ERROR_NONE, json_last_error_msg() );
 
@@ -234,9 +234,9 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 
 			$this->assertTrue( json_last_error() == JSON_ERROR_NONE, json_last_error_msg() );
 //			$this->assertTrue( false, print_r($json_decoded, true) ); //for debug info
-			$this->assertTrue( gettype( $json_decoded ) == 'array', "json_decoded $json_decoded not array. Val:" . print_r( $json_decoded, true) );
+			$this->assertTrue( gettype( $json_decoded ) == 'array', 'json_decoded $json_decoded not array. Val:' . print_r( $json_decoded, true) );
 			$json_map = new Add_Img_Maps_Map ( $json_decoded );
-			$this->assertTrue( $json_map == $map1 ); 
+			$this->assertTrue( $json_map == $map1, 'Must refine this test!' );
 		} catch (Exception $e) {
 			$this->assertTrue(false,$e);
 		}

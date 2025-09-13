@@ -3,7 +3,7 @@
 	backupGlobals="false"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="add-image-maps-tests">
 			<directory prefix="class-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
