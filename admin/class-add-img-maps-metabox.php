@@ -51,13 +51,18 @@ class Add_Img_Maps_Metabox
 				return $post_id;
 			}
 
-            $nonce = $_POST[ Add_Img_Maps::name() . '-nonce'] ?? null;
+            $nonce = filter_input(
+                    INPUT_POST,
+                    Add_Img_Maps::name() . '-nonce',
+                    FILTER_VALIDATE_REGEXP,
+                    ['regexp' => '/^[a-z0-9]+$/']
+            );
 			// Bail out now if POST vars not set
-			if ( ! isset( $nonce ) ) {
+			if ( $nonce === false ) {
 				return $post_id;
 			}
 			// Bail out now if nonce doesn't verify
-			if ( ! wp_verify_nonce( wp_unslash($nonce)) ) {
+			if ( ! wp_verify_nonce( $nonce) ) {
 				return $post_id;
 			}
 			
