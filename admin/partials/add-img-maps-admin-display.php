@@ -87,7 +87,7 @@
 	
 	<!-- Content images? -->
 	
-	<?php submit_button(__('Save all changes', $this->plugin_name), 'primary','submit', TRUE);	?>
+	<?php submit_button(esc_html__('Save all changes', $this->plugin_name), 'primary','submit', TRUE);	?>
     </form>
 
 </div>

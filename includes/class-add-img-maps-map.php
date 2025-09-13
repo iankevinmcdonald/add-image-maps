@@ -54,11 +54,11 @@ class Add_Img_Maps_Map {
 	 * @param	(*and repeat these 4 arguments for each map*)
 	 *
 	 * **An associative array reflecting the HTML element structure**
-	 * @param	type	array	
+	 * @param	array
 	 * @type `[ [ shape=>string, alt=>string, href=>string, coords=>[ ] ], ... ]`
 	 * 
 	 * **An associative array that mirrors the input form**
-	 * @param	type	array
+	 * @param	array
 	 * @type `[ shape=> ", alt=> ", href=> ", 0, 1 ,2...=>[ x=>int, y=>int, ?z=>int ] ]
 	 * @see Add_Img_Maps_Metabox->save for how the input form becomes an array
 	 *
@@ -93,14 +93,11 @@ class Add_Img_Maps_Map {
 			 */
 			} elseif (	array_key_exists( 0, array_values($args[0] ) ) ) { 
 			
-				// error_log('Interpreting values as form input: ' . print_r( $args[0], true ) );
 				$areasList = array();
 
 				// For each area
 				foreach( $args[0] as $inputArea ) {
-				
-					//error_log('$inputArea=' . print_r($inputArea, true));
-					
+
 					// Get all the co-ordinates (and typecast them to int, as a defence)					
 					$coords = array();
 
@@ -124,9 +121,7 @@ class Add_Img_Maps_Map {
 					
 					// Ensure that the co-ordinate pairs are in the right order.
 					sort( $pairs, SORT_NUMERIC );
-					
-//					error_log('$pairs = ' . print_r($pairs, true));
-					
+
 					foreach ($pairs as $pair) {
 						// Expecting a form of array(x=>integer, y=>integer)
 						if ( ! isset( $inputArea[$pair]['x']) ) {
@@ -148,7 +143,7 @@ class Add_Img_Maps_Map {
 					
 					// Validate the co-ordinate count
 					if ( ! $this->_coords_apt_for_shape( count($coords), $inputArea['shape'] ) ) {
-						throw new Exception("Tried to create new image map with shape {$shape} but miscounted co-ords {$coords}");
+						throw new Exception("Tried to create new image map with shape {$inputArea[shape]} but miscounted co-ords {$coords}");
 					}					
 					
 					// Create the area

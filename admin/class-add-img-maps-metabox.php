@@ -51,12 +51,13 @@ class Add_Img_Maps_Metabox
 				return $post_id;
 			}
 
+            $nonce = $_POST[ Add_Img_Maps::name() . '-nonce'] ?? null;
 			// Bail out now if POST vars not set
-			if ( ! isset( $_POST[ Add_Img_Maps::name() . '-nonce'] ) ) {
+			if ( ! isset( $nonce ) ) {
 				return $post_id;
 			}
 			// Bail out now if nonce doesn't verify
-			if ( ! wp_verify_nonce( $_POST[ Add_Img_Maps::name() . '-nonce'], Add_Img_Maps::name() ) ) {
+			if ( ! wp_verify_nonce( wp_unslash($nonce)) ) {
 				return $post_id;
 			}
 			
@@ -119,18 +120,11 @@ class Add_Img_Maps_Metabox
 					! $map['unchanged']);
 				})
 			)) {
-				// error_log('No changes in add_img_maps');
 				return;
 			}
 			
-			//error_log( 'Parsed $input:' );
-			//error_log( print_r( $input, true ) );
-
 			// Load the previously saved image maps as an array.
 			$maps_metadata = get_post_meta( $post_id, Add_Img_Maps::get_key(), true );
-			
-			//error_log('Retrieved old post metadata:');
-			//error_log( print_r( $maps_metadata, true ) );
 			
 			// If this is an entirely new image map ...
 			if ( ! $maps_metadata ) {
@@ -147,9 +141,6 @@ class Add_Img_Maps_Metabox
 			$new_maps = array_diff_key( $input, $maps_metadata) ;
 			
 			// Process all the old maps first.
-			//error_log( 'List of key (sizes) of $new_maps (if any):');
-			//error_log( print_r( $new_maps, true ) );
-			
 			foreach ( $maps_metadata as $size => $map ) {
 
 				if( is_numeric($size) ) {
@@ -178,8 +169,7 @@ class Add_Img_Maps_Metabox
 			}
 				
 			/* And update the metadata */ 
-			// error_log( 'After updating, maps_metadata are: ' . print_r( $maps_metadata, true ) );
-			
+
 			update_post_meta(
 				$post_id,
 				Add_Img_Maps::get_key(),
@@ -190,13 +180,12 @@ class Add_Img_Maps_Metabox
 		
 		?>	<div><p class="notice notice-error"><?php
 			_e(
-				'The Add_Img_Maps plugin failed to save the map. The details are in the error log & page source.',
+				'The Add_Img_Maps plugin failed to save the map. The details are in the error log.',
 				Add_Img_Maps::name()
 			);
-			echo '<!-- ' . esc_html($e) . '-->';
 			error_log ("Plugin Add_Img_Maps caught Exception: $e");
 			
-		?>	</div></p>			<?php
+		?>	</p></div>			<?php
 
 		} // caught error
 	
@@ -224,8 +213,6 @@ class Add_Img_Maps_Metabox
 			$all_sizes = array();
 			$sizesWithoutImageMaps = array();
 
-			//error_log('Image: ' . print_r( (array) $post, true));
-			//error_log('Meta: ' . print_r( $image_metadata, true ));
 			//Canvas will be superimposed onto main image.
 			?>
 	<canvas id="addimgmaps-canvas" class="add_img_maps-canvas"></canvas>
@@ -283,7 +270,7 @@ class Add_Img_Maps_Metabox
 					if ( ! $map->is_valid() ) {
 	?>					<div class="notice notice-warning inline"><P><?php
 						printf(
-                        /** translators: %s: image size */
+                        /* translators: %s: image size */
 							__('Invalid image map for size <em>"%s"</em> ignored.', Add_Img_Maps::name() ),
 							$image_size );
 	?>					</p></div><?php			
@@ -304,7 +291,7 @@ class Add_Img_Maps_Metabox
 					<?php			
 					if (ADD_IMG_MAPS_HANDLE_SIZES) {
 						printf(
-                            /** translators: %s: image size */
+                            /* translators: %s: image size */
 							__('Open image map for size %s.', Add_Img_Maps::name() ),
 							$image_size
 							);
@@ -321,9 +308,7 @@ class Add_Img_Maps_Metabox
 					</div>
 	<?php		} // close foreach Image
 				
-	//			error_log( '$imagemaps=' . print_r( $imagemaps, true) );
-				
-				$sizesWithoutImageMaps = array_diff ( 
+				$sizesWithoutImageMaps = array_diff (
 					$all_sizes, array_keys($imagemaps) );
 
 			} else { // if no image maps
@@ -343,7 +328,7 @@ class Add_Img_Maps_Metabox
 				data-imagesize="<?php echo $sizesWithoutImageMaps[0]; ?>"  >
 	<?php 
 				printf(
-                    /** translators: %s: image size */
+                    /* translators: %s: image size */
 					__('Create image map for size "%s".', Add_Img_Maps::name() ),
 					$sizesWithoutImageMaps[0]
 					);
@@ -369,12 +354,13 @@ class Add_Img_Maps_Metabox
 						if ( ! $imagemaps[$size] instanceof Add_Img_Maps_Map ) { // We're assuming this is a map object
 							throw new Exception ('Expected map object, got ' . print_r( $imagemaps[$size] , true) );
 						}
-		?>				data-map='<? echo json_encode( $imagemaps[$size]->as_array() ); ?>'>
+		?>				data-map='<?php echo json_encode( $imagemaps[$size]->as_array() ); ?>'>
 	<?php			} else {
 		?>			> 		<?php
 					} 
 		?>		<div>		<?php
-				printf( 
+				printf(
+                    /* translators: %s: name of size */
 					__( 'Editing map for image size "%s".', Add_Img_Maps::name() ),
 					$size);
 		?>		</div></fieldset> <?php
@@ -385,7 +371,7 @@ class Add_Img_Maps_Metabox
 			if ( $post->post_parent ) {
 				?><div class="notice notice-info inline" ><p><?php
 				printf(
-					/** translators: %1$s is the page title, %2$s is the page ID */
+					/* translators: %1$s is the page title, %2$s is the page ID */
 					__('Image attached to "%1$s" (id=%2$s)',
 						Add_Img_Maps::name() ),
 					get_the_title( $post->post_parent ),
@@ -410,8 +396,7 @@ class Add_Img_Maps_Metabox
 			
 			$like_basename = function( $where, &$wp_query ) use ($image_basename) {
 					global $wpdb;
-					// error_log( print_r( $wp_query, true ));
-					$where .= ' AND ' . 
+					$where .= ' AND ' .
 						$wpdb->posts . ".guid LIKE '%" . $wpdb->esc_like( $image_basename ) . "'";
 					return $where;
 			};
@@ -449,7 +434,6 @@ class Add_Img_Maps_Metabox
 		?>		</p><ul>		<?php
 				foreach ( $child_images as $child_image ) {
 		?>			<li>		<?php
-					// error_log( print_r( $child_image, true));
 					// Echo link to the edit page for image
 					edit_post_link(
 						// Link text 
