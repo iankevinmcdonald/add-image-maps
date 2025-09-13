@@ -283,6 +283,7 @@ class Add_Img_Maps_Metabox
 					if ( ! $map->is_valid() ) {
 	?>					<div class="notice notice-warning inline"><P><?php
 						printf(
+                        /** translators: %s: image size */
 							__('Invalid image map for size <em>"%s"</em> ignored.', Add_Img_Maps::name() ),
 							$image_size );
 	?>					</p></div><?php			
@@ -303,6 +304,7 @@ class Add_Img_Maps_Metabox
 					<?php			
 					if (ADD_IMG_MAPS_HANDLE_SIZES) {
 						printf(
+                            /** translators: %s: image size */
 							__('Open image map for size %s.', Add_Img_Maps::name() ),
 							$image_size
 							);
@@ -341,6 +343,7 @@ class Add_Img_Maps_Metabox
 				data-imagesize="<?php echo $sizesWithoutImageMaps[0]; ?>"  >
 	<?php 
 				printf(
+                    /** translators: %s: image size */
 					__('Create image map for size "%s".', Add_Img_Maps::name() ),
 					$sizesWithoutImageMaps[0]
 					);
@@ -382,8 +385,8 @@ class Add_Img_Maps_Metabox
 			if ( $post->post_parent ) {
 				?><div class="notice notice-info inline" ><p><?php
 				printf(
-					// translator: 1 is the page title, 2 is the page ID
-					__('Image attached to "%s" (id=%s)', 
+					/** translators: %1$s is the page title, %2$s is the page ID */
+					__('Image attached to "%1$s" (id=%2$s)',
 						Add_Img_Maps::name() ),
 					get_the_title( $post->post_parent ),
 					$post->post_parent
@@ -481,7 +484,7 @@ class Add_Img_Maps_Metabox
 			echo '<!-- ' . esc_html($e) . '-->';
 			error_log ("Plugin Add_Img_Maps caught exception during display of metadata box: $e");
 			
-		?>	</div></p>			<?php
+		?>	</div></div>			<?php
 		
 		} // End function
     }
