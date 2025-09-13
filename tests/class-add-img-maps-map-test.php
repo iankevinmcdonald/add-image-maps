@@ -55,7 +55,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}
 		
 	public function test_create_map_fail_poly_numbers() {
-		$this->expectExceptionMessage('Exception', "miscounted co-ords");
+		$this->expectExceptionMessage("miscounted co-ords");
 		$failMap = new Add_Img_Maps_Map  (
 			"poly" , array(30, 30), 'test poly' , 'http://t.co/'
 		);
