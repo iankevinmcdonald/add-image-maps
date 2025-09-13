@@ -39,7 +39,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	// Check the error checking
 	
 	public function test_create_map_fail_rect_numbers() {
-		$this->setExpectedException('Exception', "miscounted co-ords");
+		$this->expectExceptionMessage('miscounted co-ords');
 		$failMap = new Add_Img_Maps_Map  (
 			"rect" , array(10, 10, 20, 30, 40), 'Test Rect', 'http://t.co/'
 		);
@@ -47,7 +47,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function test_create_map_fail_circ_numbers() {
-		$this->setExpectedException('Exception', "miscounted co-ords");
+		$this->expectExceptionMessage('miscounted co-ords');
 		$failMap = new Add_Img_Maps_Map  (
 			"circle", array(30, 30), 'test rect' , 'http://t.co/'
 		);
@@ -55,7 +55,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}
 		
 	public function test_create_map_fail_poly_numbers() {
-		$this->setExpectedException('Exception', "miscounted co-ords");
+		$this->expectExceptionMessage('Exception', "miscounted co-ords");
 		$failMap = new Add_Img_Maps_Map  (
 			"poly" , array(30, 30), 'test poly' , 'http://t.co/'
 		);
@@ -63,7 +63,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}		
 		
 	public function test_create_map_fail_shape() {
-		$this->setExpectedException('Exception', "unrecognised shape");
+		$this->expectExceptionMessage("unrecognised shape");
 		$failMap = new Add_Img_Maps_Map  (
 			"circ", array(30, 30), 'test circ' , 'http://t.co/'
 		);
@@ -71,7 +71,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}	
 	
 	public function test_create_map_fail_args_count() {
-		$this->setExpectedException('Exception', "fours");
+		$this->expectExceptionMessage("fours");
 		$failMap = new Add_Img_Maps_Map  (
 			"circle", array(30, 30) 
 		);
@@ -145,7 +145,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function test_create_map_fail_from_form_input() {
-		$this->setExpectedException('Exception', "Missing x co-ordinate");
+		$this->expectExceptionMessage("Missing x co-ordinate");
 		$formInput = array(
 				'full' => array(
 					0 => array(
@@ -162,7 +162,7 @@ class Add_Img_Maps_Map_Test extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function test_create_map_fail2_from_form_input() {
-		$this->setExpectedException('Exception', "Missing x co-ordinate");	
+		$this->expectExceptionMessage("Missing x co-ordinate");
 		$formInput = array(
 					1 => array(
 						'shape' => 'circle',

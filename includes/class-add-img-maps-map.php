@@ -197,7 +197,7 @@ class Add_Img_Maps_Map {
 				// Second part is the co-ordinates 
 				$coords = array_shift($args);
 				if ( ! $this->_coords_apt_for_shape( count($coords), $shape ) ) {
-					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords {$coords}");
+					throw new Exception("Tried to create new image map with shape $shape but miscounted co-ords " . json_encode($coords));
 				}
 				
 				// Final parts are the Alt text & link. Pre-escaped /
