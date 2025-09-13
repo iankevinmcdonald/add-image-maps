@@ -251,7 +251,7 @@ class Add_Img_Maps {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public static function get_plugin_name() {
 		return self::PLUGIN_NAME;
 	}
 	
@@ -261,7 +261,7 @@ class Add_Img_Maps {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function name() {
+	public static function name() {
 		return self::PLUGIN_NAME;
 	}
 
