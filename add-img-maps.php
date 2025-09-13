@@ -20,7 +20,7 @@
  * Description:       Enables editors to set HTML5 image maps on images. Displays them, inclding on header images.
  * Version:           1.0.0
  * Author:            Ian McDonald
- * Author URI:        mcdonald.me.uk
+ * Author URI:        https://www.mcdonald.me.uk/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       add-img-maps
@@ -40,7 +40,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently plugin version.
  */
-define( 'ADD_IMG_MAPS_VERSION', '1.0.0' );
+define( 'ADD_IMG_MAPS_VERSION', '1.1.0' );
 
 /**
  * Whether we can HANDLE_SIZES yet
