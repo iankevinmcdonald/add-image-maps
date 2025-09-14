@@ -271,7 +271,7 @@ class Add_Img_Maps {
 	 * @return  string	_the_plugin_metadata_key
 	 */
 	
-	public function get_key() {
+	public static function get_key() {
 		return self::PLUGIN_KEY;
 	}	
 	
@@ -282,7 +282,7 @@ class Add_Img_Maps {
 	 * element IDs and names are themselves a hyphen-separated list.
 	 */
 	 
-	public function attr_prefix() {
+	static public function attr_prefix() {
 		return str_replace( '-' , '', self::PLUGIN_NAME);
 	}
 	
