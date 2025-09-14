@@ -18,7 +18,7 @@
  * Plugin Name:       Add Image Maps
  * Plugin URI:        https://github.com/iankevinmcdonald/wordpress-imagemaps/
  * Description:       Enables editors to set HTML5 image maps on images. Displays them, inclding on header images.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            Ian McDonald
  * Author URI:        https://www.mcdonald.me.uk/
  * License:           GPL-2.0+
