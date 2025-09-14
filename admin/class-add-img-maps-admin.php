@@ -59,7 +59,8 @@ class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 					self::PLUGIN_NAME . '-metabox',
 					plugin_dir_url( __FILE__ ) . 'js/add-img-maps-metabox.js', 
 					array( 'jquery' ), 
-					self::PLUGIN_VERSION
+					self::PLUGIN_VERSION,
+					[ 'in_footer' => true ]
 				); 
 				// Set up button labels and other internationalisable text
 				wp_localize_script(
