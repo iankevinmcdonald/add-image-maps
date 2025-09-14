@@ -5,7 +5,7 @@ Requires at least: 3.0
 Requires PHP: 7.4
 Tested up to: 4.9
 License: GPLv2
-Stable Tag: 1.1
+Stable Tag: 1.1.0
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 WordPress Plugin to implement HTML Image Maps for any image, including headers
@@ -105,6 +105,10 @@ If your theme doesn't have those, then *Add Image Maps* will try to recognise it
 == Changelog ==
 
 The working repository, including for new issues, is [on GitHub](https://github.com/iankevinmcdonald/WordPress-imagemaps).
+
+= 1.1.0 =
+
+* Updated to work with Wordpress 6
 
 = 1.0.0 =
 
