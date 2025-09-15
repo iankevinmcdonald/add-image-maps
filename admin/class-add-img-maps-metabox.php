@@ -61,10 +61,12 @@ class Add_Img_Maps_Metabox
             );
 			// Bail out now if POST vars not set
 			if ( $nonce === false ) {
+                error_log( __METHOD__ . __LINE__ . ' Post vars not set');
 				return $post_id;
 			}
 			// Bail out now if nonce doesn't verify
 			if ( ! wp_verify_nonce( $nonce) ) {
+                error_log( __METHOD__ . __LINE__ . ' Nonce not verified');
 				return $post_id;
 			}
 			
@@ -116,6 +118,7 @@ class Add_Img_Maps_Metabox
 			
 			/* No addimgmaps input at all */
 			if ( 0 == count($input) ) {
+                error_log(__METHOD__ . ' No addimgmaps input');
 				return;
 			}
 
@@ -127,6 +130,7 @@ class Add_Img_Maps_Metabox
 					! $map['unchanged']);
 				})
 			)) {
+                error_log(__METHOD__ . ' input unchanged');
 				return;
 			}
 			
@@ -160,6 +164,7 @@ class Add_Img_Maps_Metabox
 				/* If the flag is set to say this map isn't changed, it saves us some processing. */
 				} elseif ( isset($input['size']['unchanged']) and $input[$size]['unchanged']) {
 					/*do nothing */;
+                    error_log(__METHOD__ . ' ' . __LINE__);
 				/* Else the input defines the new map */
 				} else {
 					//Remove the flags (unset doesn't throw an error if it doesn't exist)				
@@ -176,12 +181,13 @@ class Add_Img_Maps_Metabox
 			}
 				
 			/* And update the metadata */ 
-
+            error_log(__METHOD__ . __LINE__ );
 			update_post_meta(
 				$post_id,
 				Add_Img_Maps::get_key(),
 				$maps_metadata
 			);
+            error_log(__METHOD__ . __LINE__ );
 
 		} catch ( Exception $t) { //anything go wrong?
 			error_log ("Plugin Add_Img_Maps caught Error: " . $t->getMessage() );
@@ -402,8 +408,7 @@ class Add_Img_Maps_Metabox
 			
 			$image_basename = basename( wp_get_attachment_url( $post->ID ) );
 
-			global $wpdb;
-			
+			global $wp_query;
 			$like_basename = function( $where, &$wp_query ) use ($image_basename) {
 					global $wpdb;
 					$where .= ' AND ' .
