@@ -65,7 +65,7 @@ class Add_Img_Maps_Metabox
 				return $post_id;
 			}
 			// Bail out now if nonce doesn't verify
-			if ( ! wp_verify_nonce( $nonce) ) {
+			if ( ! wp_verify_nonce( $nonce, Add_Img_Maps::name() ) ) {
                 echo( __METHOD__ . __LINE__ . ' Nonce not verified ' . print_r($nonce, true));
 				return $post_id;
 			}
