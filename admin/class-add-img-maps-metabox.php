@@ -18,7 +18,7 @@ class Add_Img_Maps_Metabox
 	 
     public static function add()
     {
-        echo(__METHOD__);
+        error_log(__METHOD__);
 		/* I believe this argument is how to limit by attachment */
 		add_meta_box(
 			Add_Img_Maps::attr_prefix() . '_metabox',
@@ -40,16 +40,14 @@ class Add_Img_Maps_Metabox
  
     public static function save($post_id)
     {
-		echo(__METHOD__ . ' ' . __LINE__ );
-		
+
 		try {
-				echo(__METHOD__ . ' ' . __LINE__ );
 
 			$post = get_post($post_id);
 			
 			// If this is not an image, bail
 			if ( strncasecmp( $post->post_mime_type, 'image', 5) ) {
-				// echo('Mime type is ' . $post->post_mime_type );
+				// error_log('Mime type is ' . $post->post_mime_type );
 				return $post_id;
 			}
 
@@ -61,12 +59,12 @@ class Add_Img_Maps_Metabox
             );
 			// Bail out now if POST vars not set
 			if ( $nonce === false ) {
-                echo( __METHOD__ . __LINE__ . ' Post vars not set');
+                error_log( __METHOD__ . __LINE__ . ' Post vars not set');
 				return $post_id;
 			}
 			// Bail out now if nonce doesn't verify
 			if ( ! wp_verify_nonce( $nonce, Add_Img_Maps::name() ) ) {
-                echo( __METHOD__ . __LINE__ . ' Nonce not verified ' . print_r($nonce, true));
+                error_log( __METHOD__ . __LINE__ . ' Nonce not verified ' . print_r($nonce, true));
 				return $post_id;
 			}
 			
@@ -105,7 +103,7 @@ class Add_Img_Maps_Metabox
 						
 						default:
 						// This should not happen, and is an apt error log.
-						echo( "Add_Img_Maps: Unrecognised input option: $field.");
+						error_log( "Add_Img_Maps: Unrecognised input option: $field.");
 					}
 				}
 			}
@@ -118,7 +116,6 @@ class Add_Img_Maps_Metabox
 			
 			/* No addimgmaps input at all */
 			if ( 0 == count($input) ) {
-                echo(__METHOD__ . ' No addimgmaps input');
 				return;
 			}
 
@@ -130,7 +127,6 @@ class Add_Img_Maps_Metabox
 					! $map['unchanged']);
 				})
 			)) {
-                echo(__METHOD__ . ' input unchanged');
 				return;
 			}
 			
@@ -164,7 +160,7 @@ class Add_Img_Maps_Metabox
 				/* If the flag is set to say this map isn't changed, it saves us some processing. */
 				} elseif ( isset($input['size']['unchanged']) and $input[$size]['unchanged']) {
 					/*do nothing */;
-                    echo(__METHOD__ . ' ' . __LINE__);
+                    error_log(__METHOD__ . ' ' . __LINE__);
 				/* Else the input defines the new map */
 				} else {
 					//Remove the flags (unset doesn't throw an error if it doesn't exist)				
@@ -181,17 +177,15 @@ class Add_Img_Maps_Metabox
 			}
 				
 			/* And update the metadata */ 
-            echo(__METHOD__ . __LINE__ );
 			update_post_meta(
 				$post_id,
 				Add_Img_Maps::get_key(),
 				$maps_metadata
 			);
-            echo(__METHOD__ . __LINE__ );
 
-		} catch ( Exception $t) { //anything go wrong?
-			echo("Plugin Add_Img_Maps caught Error: " . $t->getMessage() );
-            echo( 'Trace:'  . $t->getTraceAsString());
+		} catch ( Throwable $t) { //anything go wrong?
+			error_log("Plugin Add_Img_Maps caught Error: " . $t->getMessage() );
+            error_log( 'Trace:'  . $t->getTraceAsString());
 
 		?>	<div><p class="notice notice-error"><?php
 			_e(
@@ -200,7 +194,6 @@ class Add_Img_Maps_Metabox
 			);
 
 		?>	</p></div>			<?php
-		    wp_die( $t->getMessage() . ' TRACE: ' . $t->getTraceAsString() );
 
 		} // caught error
 	
@@ -218,7 +211,6 @@ class Add_Img_Maps_Metabox
  
     public static function html($post)
     {
-        echo(__METHOD__ );
 		try {
 			// Get the imagemaps saved as metadata
 			$imagemaps = get_post_meta($post->ID, Add_Img_Maps::get_key(), true);
@@ -255,24 +247,6 @@ class Add_Img_Maps_Metabox
 			><?php _e('Javascript required.', Add_Img_Maps::name() ); ?></span>
 	<?php			
 
-			/*
-			 * @ignore. When implemented, this will be the biz logic of the 
-			 * _HANDLE_SIZES feature
-			 *
-			 * No Img Maps:
-			 * "There are no maps attached to this image. / Add map to size [[full]..]" (select menu)
-			 * 
-			 * OR [before editing]
-			 * Image Maps -> Option to (Open) existing maps or add.
-			 * 
-			 * OR [during editing]
-			 * Open Img Maps -> One map is open for editing; option to add or switch; (or delete current map)
-			 *					(Most of this business logic is already in the Javascript)
-			 *
-			 * There will be a *UI need* to only edit one at a time, otherwise it gets confusing.
-			 *
-			 */
-			 
 			 if ( $imagemaps ) { 
 
 			 // Backwords compatibility with maps stored by earlier dev version.
@@ -481,7 +455,7 @@ class Add_Img_Maps_Metabox
 				Add_Img_Maps::name()
 			);
 			echo '<!-- ' . esc_html($e) . '-->';
-			echo("Plugin Add_Img_Maps caught exception during display of metadata box: $e");
+			error_log("Plugin Add_Img_Maps caught exception during display of metadata box: $e");
 			
 		?>	</div></div>			<?php
 		

@@ -193,7 +193,6 @@ class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 		/* Called by the admin_init hook; expanded v1.0.1 */
 		// TODO: Should really only load this when needed by the form
 
-		error_log(__METHOD__ . ' self::PLUGIN_NAME ' . self::PLUGIN_NAME);
 		register_setting(
 			self::PLUGIN_NAME, 
 			self::PLUGIN_NAME,

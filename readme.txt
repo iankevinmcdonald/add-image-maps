@@ -3,7 +3,7 @@ Contributors: driannmcdonald, davidjbradshaw
 Tags: display, images, links, imagemaps
 Requires at least: 3.0
 Requires PHP: 7.4
-Tested up to: 4.9
+Tested up to: 6.8.2
 License: GPLv2
 Stable Tag: 1.1.0
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

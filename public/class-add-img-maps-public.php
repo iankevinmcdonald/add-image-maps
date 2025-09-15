@@ -59,9 +59,7 @@ class Add_Img_Maps_Public extends Add_Img_Maps_Parent {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-        error_log(__METHOD__ . ' this->plugin_name=' . $this->plugin_name);
         $this->add_img_maps_options = get_option($this->plugin_name, self::SETTING_DEFAULTS);
-        error_log( __METHOD__ . ' this->add_img_maps_options= ' . print_r($this->add_img_maps_options,true) );
 	}
 
 	
