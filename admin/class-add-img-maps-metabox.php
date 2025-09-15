@@ -39,7 +39,7 @@ class Add_Img_Maps_Metabox
  
     public static function save($post_id)
     {
-		// error_log('Add_Img_Maps_Metabox->save');
+		error_log('Add_Img_Maps_Metabox->save');
 		
 		try {
 		
@@ -181,14 +181,14 @@ class Add_Img_Maps_Metabox
 				$maps_metadata
 			);
 
-		} catch ( Exception $e) { //anything go wrong?
-		
+		} catch ( Throwable $t) { //anything go wrong?
+
 		?>	<div><p class="notice notice-error"><?php
 			_e(
 				'The Add_Img_Maps plugin failed to save the map. The details are in the error log.',
 				Add_Img_Maps::name()
 			);
-			error_log ("Plugin Add_Img_Maps caught Exception: $e");
+			error_log ("Plugin Add_Img_Maps caught Exception: " . $t->getMessage() . ' ' . $t->getTraceAsString());
 			
 		?>	</p></div>			<?php
 
