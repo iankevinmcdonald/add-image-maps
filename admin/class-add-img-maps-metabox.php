@@ -57,7 +57,7 @@ class Add_Img_Maps_Metabox
                     INPUT_POST,
                     Add_Img_Maps::name() . '-nonce',
                     FILTER_VALIDATE_REGEXP,
-                    ['regexp' => '/^[a-z0-9]+$/']
+                    ['options' => [ 'regexp' => '/^[a-z0-9]+$/'] ]
             );
 			// Bail out now if POST vars not set
 			if ( $nonce === false ) {
