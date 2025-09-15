@@ -207,6 +207,8 @@ class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 				'description' => 'Options for the Add Image Maps plugin.',
 			)
 		);
+
+
 	}
 	
 	/**
