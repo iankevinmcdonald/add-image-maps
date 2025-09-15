@@ -18,6 +18,7 @@ class Add_Img_Maps_Metabox
 	 
     public static function add()
     {
+        error_log(__METHOD__);
 		/* I believe this argument is how to limit by attachment */
 		add_meta_box(
 			Add_Img_Maps::attr_prefix() . '_metabox',
@@ -39,10 +40,11 @@ class Add_Img_Maps_Metabox
  
     public static function save($post_id)
     {
-		error_log('Add_Img_Maps_Metabox->save');
+		error_log(__METHOD__ . ' ' . __LINE__ );
 		
 		try {
-		
+				error_log(__METHOD__ . ' ' . __LINE__ );
+
 			$post = get_post($post_id);
 			
 			// If this is not an image, bail
@@ -181,16 +183,18 @@ class Add_Img_Maps_Metabox
 				$maps_metadata
 			);
 
-		} catch ( Throwable $t) { //anything go wrong?
+		} catch ( Exception $t) { //anything go wrong?
+			error_log ("Plugin Add_Img_Maps caught Error: " . $t->getMessage() );
+            error_log( 'Trace:'  . $t->getTraceAsString());
 
 		?>	<div><p class="notice notice-error"><?php
 			_e(
 				'The Add_Img_Maps plugin failed to save the map. The details are in the error log.',
 				Add_Img_Maps::name()
 			);
-			error_log ("Plugin Add_Img_Maps caught Exception: " . $t->getMessage() . ' ' . $t->getTraceAsString());
-			
+
 		?>	</p></div>			<?php
+		    wp_die( $t->getMessage() . ' TRACE: ' . $t->getTraceAsString() );
 
 		} // caught error
 	
@@ -208,6 +212,7 @@ class Add_Img_Maps_Metabox
  
     public static function html($post)
     {
+        error_log(__METHOD__ );
 		try {
 			// Get the imagemaps saved as metadata
 			$imagemaps = get_post_meta($post->ID, Add_Img_Maps::get_key(), true);
