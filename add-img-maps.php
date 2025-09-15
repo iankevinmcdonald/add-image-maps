@@ -22,7 +22,7 @@
  * Author:            Ian McDonald
  * Author URI:        https://www.mcdonald.me.uk/
  * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * License URI:       http://www.gnu.org/licenses/gpl-2.o0.txt
  * Text Domain:       add-img-maps
  * Domain Path:       /languages
  *

@@ -1,5 +1,7 @@
 <?php
 
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-add-img-maps-parent.php';
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -11,7 +13,7 @@
  * @package    Add_Img_Maps/public
  * @author     Ian McDonald <ian@mcdonald.me.uk>
  */
-class Add_Img_Maps_Public {
+class Add_Img_Maps_Public extends Add_Img_Maps_Parent {
 
 	/**
 	 * The ID of this plugin.
@@ -58,7 +60,7 @@ class Add_Img_Maps_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         error_log(__METHOD__ . 'this->plugin_name' . $this->plugin_name);
-        $this->add_img_maps_options = get_option($this->plugin_name);
+        $this->add_img_maps_options = get_option($this->plugin_name, self::SETTING_DEFAULTS);
 	}
 
 	

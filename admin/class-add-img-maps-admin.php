@@ -191,19 +191,15 @@ class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 	public function options_update() {
 		/* Saving in one chunk, so the second argument is the plugin name rather than a setting. */
 		/* Called by the admin_init hook; expanded v1.0.1 */
+		// TODO: Should really only load this when needed by the form
+
 		error_log(__METHOD__ . ' self::PLUGIN_NAME ' . self::PLUGIN_NAME);
 		register_setting(
 			self::PLUGIN_NAME, 
-			self::PLUGIN_NAME, 
+			self::PLUGIN_NAME,
 			array(
 				'type' => 'array',
-				'default'=> array(
-					'header' => 1,
-					'content' => 1,
-					'thumbnail' => 1,
-					'imagemapresizer' => 1,
-					'srcset' => 'off',
-				),
+				'default'=> self::SETTING_DEFAULTS,
 				'sanitize_callback' => array(
 					$this,
 					'validate'

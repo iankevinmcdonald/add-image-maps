@@ -35,4 +35,18 @@ class Add_Img_Maps_Parent
      * @var      string    $version    The current version of the plugin.
      */
     const PLUGIN_VERSION = '1.0.1';
+
+	/**
+	 * Setting defaults.
+	 * @since 1.1.0
+	 * @const array SETTING_DEFAULTS The settting defaults, to avoid repeating.
+	 */
+	const SETTING_DEFAULTS=	[
+		'header' => 1,
+		'content' => 1,
+		'thumbnail' => 1,
+		'imagemapresizer' => 1,
+		'srcset' => 'off',
+	];
+
 }
