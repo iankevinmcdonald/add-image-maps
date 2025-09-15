@@ -14,32 +14,11 @@
 class Add_Img_Maps_Activator {
 
 	/**
-	 * Set up default option settings.
+	 * Does nothing - option settings are set up per-call on admin_init
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {	
-	
-		register_setting(
-			'options',
-			Add_Img_Maps::get_plugin_name() ,
-			array(
-				'type' => 'array',
-
-				'default'=> array(
-					'header' => 1,
-					'content' => 1,
-					'thumbnail' => 1,
-					'imagemapresizer' => 1,
-					'srcset' => 'off',
-					),
-				'sanitize_callback' => array(
-					'Add_Img_Maps_Admin',
-					'validate'
-					),
-				'description' => 'Options for the Add Image Maps plugin.',
-			)
-		);
+	public static function activate() {
+		//
 	}
-
 }

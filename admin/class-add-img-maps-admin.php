@@ -191,10 +191,12 @@ class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 	public function options_update() {
 		/* Saving in one chunk, so the second argument is the plugin name rather than a setting. */
 		/* Called by the admin_init hook; expanded v1.0.1 */
+		error_log(__METHOD__ . ' self::PLUGIN_NAME ' . self::PLUGIN_NAME);
 		register_setting(
 			self::PLUGIN_NAME, 
 			self::PLUGIN_NAME, 
 			array(
+				'type' => 'array',
 				'default'=> array(
 					'header' => 1,
 					'content' => 1,
@@ -202,11 +204,11 @@ class Add_Img_Maps_Admin extends Add_Img_Maps_Parent {
 					'imagemapresizer' => 1,
 					'srcset' => 'off',
 				),
-			'sanitize_callback' => array( 
-				$this, 
-				'validate'
-				),
-			'description' => 'Options for the Add Image Maps plugin.',
+				'sanitize_callback' => array(
+					$this,
+					'validate'
+					),
+				'description' => 'Options for the Add Image Maps plugin.',
 			)
 		);
 	}
